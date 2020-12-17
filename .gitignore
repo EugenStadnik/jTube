@@ -1,12 +1,12 @@
 #Compiled binaries
-./target
+target
 
 #Logs
-./logs
+./logs/*
 
 #Downloaded files
-./downloaded
-./tmp
+./downloaded/*
+./tmp/*
 
 #IDE Configs
 .idea
