@@ -2,11 +2,8 @@
 target
 
 #Logs
-./logs/*
+/logs/*.log
 
 #Downloaded files
-./downloaded/*
-./tmp/*
-
-#IDE Configs
-.idea
+/tmp/*.*
+/downloaded/*.avi
