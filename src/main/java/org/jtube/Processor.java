@@ -69,7 +69,7 @@ public class Processor extends Thread {
 			logger.error(e);
 			return;
 		}
-		logger.info("The " + tempVideo.getName() + " file is deleted: " + tempVideo.delete());
-		logger.info("The " + tempAudio.getName() + " file is deleted: " + tempAudio.delete());
+		logger.info("The " + tempVideo.getName() + " temporary video file is deleted: " + tempVideo.delete());
+		logger.info("The " + tempAudio.getName() + " temporary audio file is deleted: " + tempAudio.delete());
 	}
 }
