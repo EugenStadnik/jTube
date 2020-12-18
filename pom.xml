@@ -6,7 +6,7 @@
 
     <groupId>org.jtube</groupId>
     <artifactId>jTube</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1</version>
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>

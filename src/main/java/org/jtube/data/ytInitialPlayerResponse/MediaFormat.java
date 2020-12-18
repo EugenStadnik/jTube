@@ -1,6 +1,9 @@
 
 package org.jtube.data.ytInitialPlayerResponse;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import javax.validation.Valid;
@@ -12,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.jtube.utils.Constants;
 
 import static org.jtube.data.ytInitialPlayerResponse.MediaFormatType.*;
 
@@ -191,8 +195,8 @@ public class MediaFormat implements Comparable<MediaFormat> {
     }
 
     @JsonProperty("url")
-    public String getUrl() {
-        return url;
+    public URL getUrl() throws MalformedURLException {
+        return new URL(url);
     }
 
     @JsonProperty("url")
@@ -409,4 +413,11 @@ public class MediaFormat implements Comparable<MediaFormat> {
         return "_" + getMediaFormatType().toString().toLowerCase() + getFileExtension();
     }
 
+    public File getTemporaryFile(String title) {
+        return new File(Constants.TMP + title + getFileSufix());
+    }
+
+    public File getMergedFile(String title) {
+        return new File(Constants.DOWNLOADED + title + Constants.AVI);
+    }
 }

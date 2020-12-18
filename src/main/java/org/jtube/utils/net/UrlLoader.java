@@ -26,8 +26,8 @@ public class UrlLoader {
 		return instance;
 	}
 
-	public Document load(String url) throws IOException {
-		Document document = Jsoup.connect(url).get();
+	public Document load(URL url) throws IOException {
+		Document document = Jsoup.parse(url, 3000);
 		if(document != null) {
 			logger.info("The html source of " + url + " url is downloaded successfully.");
 		} else {
