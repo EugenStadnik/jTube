@@ -2,7 +2,6 @@ package org.jtube.data.objectMappers;
 
 import io.lindstrom.m3u8.model.MasterPlaylist;
 import io.lindstrom.m3u8.model.MediaPlaylist;
-import io.lindstrom.m3u8.parser.AbstractPlaylistParser;
 import io.lindstrom.m3u8.parser.MasterPlaylistParser;
 import io.lindstrom.m3u8.parser.MediaPlaylistParser;
 import org.apache.log4j.Logger;
@@ -19,8 +18,8 @@ public class SegmentedPlaylistSourceDataMapper implements SourceDataMapper {
 
 	final static Logger logger = Logger.getLogger(SegmentedPlaylistSourceDataMapper.class);
 	private static SegmentedPlaylistSourceDataMapper instance;
-	private static AbstractPlaylistParser masterPlaylistParser;
-	private static AbstractPlaylistParser mediaPlaylistParser;
+	private static MasterPlaylistParser masterPlaylistParser;
+	private static MediaPlaylistParser mediaPlaylistParser;
 	private static final UrlLoader URL_LOADER = UrlLoader.getInstance();
 
 	private SegmentedPlaylistSourceDataMapper() {}
@@ -42,15 +41,15 @@ public class SegmentedPlaylistSourceDataMapper implements SourceDataMapper {
 	public SegmentedPlaylistSourceData parseSourceData(String masterPlaylistUrl) throws IOException {
 		SegmentedPlaylistSourceData result = new SegmentedPlaylistSourceData();
 		URL masterPlaylistURL = new URL(masterPlaylistUrl);
-		MasterPlaylist masterPlaylist = (MasterPlaylist) masterPlaylistParser.readPlaylist(URL_LOADER.download(masterPlaylistURL));
+		MasterPlaylist masterPlaylist = masterPlaylistParser.readPlaylist(URL_LOADER.download(masterPlaylistURL));
 		result.getUriMasterPlaylistMap().put(masterPlaylistURL, masterPlaylist);
 		Map<URL, MediaPlaylist> uriMediaPlaylistMap = result.getUriMediaPlaylistMap();
-		masterPlaylist.variants().stream().forEach(variant -> {
+		masterPlaylist.variants().forEach(variant -> {
 			try {
 				URL mediaPlaylistURL = new URL(masterPlaylistURL.getProtocol(), masterPlaylistURL.getHost(), masterPlaylistURL.getPort()
-						, Paths.get(masterPlaylistURL.getFile()).getParent().toString() + variant.uri().replaceFirst("[\\.]", ""));
+						, Paths.get(masterPlaylistURL.getFile()).getParent().toString() + variant.uri().replaceFirst("^[.]", ""));
 				uriMediaPlaylistMap.put(mediaPlaylistURL
-						, (MediaPlaylist) mediaPlaylistParser.readPlaylist(URL_LOADER.download(mediaPlaylistURL)));
+						, mediaPlaylistParser.readPlaylist(URL_LOADER.download(mediaPlaylistURL)));
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}

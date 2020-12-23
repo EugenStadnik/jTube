@@ -15,6 +15,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class SegmentedPlaylistTransformator implements Transformator {
@@ -24,24 +25,22 @@ public class SegmentedPlaylistTransformator implements Transformator {
 	@Override
 	public ProductData transform(SourceData sourceData) {
 		SegmentedPlaylistSourceData segmentedPlaylistSourceData = (SegmentedPlaylistSourceData) sourceData;
-		URL streamsBaseUrl = segmentedPlaylistSourceData.getUriMasterPlaylistMap().keySet().stream().findFirst().get();
+		URL streamsBaseUrl = segmentedPlaylistSourceData.getUriMasterPlaylistMap().keySet().stream().findFirst().orElse(null);
 		return new ProductData()
-				.withTitle(urlToTitle(streamsBaseUrl))
+				.withTitle(urlToTitle(Objects.requireNonNull(streamsBaseUrl)))
 				.withSource(Source.SEGMENTED_PLAYLIST)
 				.withMultiMediaStreams(
-						segmentedPlaylistSourceData.getUriMasterPlaylistMap().values().stream().findFirst().get().variants().stream()
+						Objects.requireNonNull(segmentedPlaylistSourceData.getUriMasterPlaylistMap().values().stream().findFirst().orElse(null)).variants().stream()
 								.map((variant) -> {
-									logger.debug(variant);
 									URL streamBaseUrl = enrichUrl(streamsBaseUrl, variant.uri());
-									logger.debug(streamBaseUrl);
 									return new MultiMediaStream()
 											.withType(MultimediaFormatType.AUDIO_VIDEO)
-											.withResolution(QualityLabel.valueOf("" + variant.resolution().get().height()))
+											.withResolution(QualityLabel.valueOf("" + Objects.requireNonNull(variant.resolution().orElse(null)).height()))
 											.withBitRate(variant.bandwidth())
 											.withUrls(
 													segmentedPlaylistSourceData.getUriMediaPlaylistMap().get(streamBaseUrl).mediaSegments().stream()
-															.map(MediaSegment::uri).map((uri) -> {return enrichUrl(streamBaseUrl, "/"+uri);})
-															.collect(Collectors.toList())
+															.map(MediaSegment::uri).map(uri -> enrichUrl(streamBaseUrl, "/" + uri)
+													).collect(Collectors.toList())
 											);
 										}
 								).collect(Collectors.toList())
