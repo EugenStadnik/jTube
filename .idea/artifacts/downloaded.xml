@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact name="downloaded">
+    <output-path>$PROJECT_DIR$/out/artifacts/jTube/downloaded</output-path>
+    <root id="root">
+      <element id="dir-copy" path="$PROJECT_DIR$/../downloaded" />
+    </root>
+  </artifact>
+</component>

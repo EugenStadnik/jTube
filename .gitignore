@@ -1,5 +1,6 @@
 #Compiled binaries
 target
+out
 
 #Logs
 /logs/*.log

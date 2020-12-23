@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact name="tmp">
+    <output-path>$PROJECT_DIR$/out/artifacts/jTube/tmp</output-path>
+    <root id="root">
+      <element id="dir-copy" path="$PROJECT_DIR$/../tmp" />
+    </root>
+  </artifact>
+</component>

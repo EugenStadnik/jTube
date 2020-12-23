@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact type="jar" name="jTube:jar">
-    <output-path>$PROJECT_DIR$/out/artifacts/jTube_jar/bin</output-path>
+    <output-path>$PROJECT_DIR$/out/artifacts/jTube/bin</output-path>
     <root id="archive" name="jTube.jar">
       <element id="directory" name="META-INF">
         <element id="file-copy" path="$PROJECT_DIR$/target/META-INF/MANIFEST.MF" />

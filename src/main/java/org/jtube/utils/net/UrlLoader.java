@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Scanner;
 
 public class UrlLoader {
 
@@ -34,6 +35,22 @@ public class UrlLoader {
 			logger.warn("The html source of " + url + " url is not downloaded.");
 		}
 		return document;
+	}
+
+	public String download(URL url) throws IOException {
+		String result = null;
+		try(InputStream in = url.openStream();
+			ReadableByteChannel rbc = Channels.newChannel(in))
+		{
+			Scanner scanner = new Scanner(rbc);
+			result = scanner.useDelimiter("\\z").next();
+		}
+		if(result == null) {
+			logger.warn("The " + url + " url is not downloaded.");
+			return null;
+		}
+		logger.info("The " + url + " url downloaded successfully.");
+		return result;
 	}
 
 	public File downloadToFile(URL url, File downloadingFile) throws IOException {
