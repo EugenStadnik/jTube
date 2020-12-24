@@ -3,6 +3,8 @@ package org.jtube.data.result;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -21,20 +23,20 @@ import org.jtube.data.youtube.QualityLabel;
 		"bitRate",
 		"urls"
 })
-public class MultiMediaStream {
+public class MultiMediaStream implements Comparable<MultiMediaStream> {
 
 	@JsonProperty("type")
 	private MultimediaFormatType type;
 	@JsonProperty("resolution")
 	private QualityLabel resolution;
 	@JsonProperty("frameRate")
-	private long frameRate;
+	private Long frameRate;
 	@JsonProperty("audioSampleRate")
-	private int audioSampleRate;
+	private String audioSampleRate;
 	@JsonProperty("bitRate")
 	private long bitRate;
 	@JsonProperty("urls")
-	private List<URL> urls = new ArrayList<URL>();
+	private List<URL> urls = new ArrayList<>();
 
 	/**
 	 * No args constructor for use in serialization
@@ -43,7 +45,7 @@ public class MultiMediaStream {
 	public MultiMediaStream() {
 	}
 
-	public MultiMediaStream(MultimediaFormatType type, QualityLabel resolution, int frameRate, int audioSampleRate, int bitRate, List<URL> urls) {
+	public MultiMediaStream(MultimediaFormatType type, QualityLabel resolution, Long frameRate, String audioSampleRate, int bitRate, List<URL> urls) {
 		super();
 		this.type = type;
 		this.resolution = resolution;
@@ -70,7 +72,7 @@ public class MultiMediaStream {
 
 	@JsonProperty("resolution")
 	public String getResolution() {
-		return resolution.getValue();
+		return resolution.toString();
 	}
 
 	@JsonProperty("resolution")
@@ -84,12 +86,12 @@ public class MultiMediaStream {
 	}
 
 	@JsonProperty("frameRate")
-	public long getFrameRate() {
+	public Long getFrameRate() {
 		return frameRate;
 	}
 
 	@JsonProperty("frameRate")
-	public void setFrameRate(long frameRate) {
+	public void setFrameRate(Long frameRate) {
 		this.frameRate = frameRate;
 	}
 
@@ -99,16 +101,16 @@ public class MultiMediaStream {
 	}
 
 	@JsonProperty("audioSampleRate")
-	public int getAudioSampleRate() {
+	public String getAudioSampleRate() {
 		return audioSampleRate;
 	}
 
 	@JsonProperty("audioSampleRate")
-	public void setAudioSampleRate(int audioSampleRate) {
+	public void setAudioSampleRate(String audioSampleRate) {
 		this.audioSampleRate = audioSampleRate;
 	}
 
-	public MultiMediaStream withAudioSampleRate(int audioSampleRate) {
+	public MultiMediaStream withAudioSampleRate(String audioSampleRate) {
 		this.audioSampleRate = audioSampleRate;
 		return this;
 	}
@@ -153,7 +155,7 @@ public class MultiMediaStream {
 		if (other == this) {
 			return true;
 		}
-		if ((other instanceof MultiMediaStream) == false) {
+		if (!(other instanceof MultiMediaStream)) {
 			return false;
 		}
 		MultiMediaStream rhs = ((MultiMediaStream) other);
@@ -163,6 +165,16 @@ public class MultiMediaStream {
 	@Override
 	public String toString() {
 		return new JSONObject(this).toString(3);
+	}
+
+	@Override
+	public int compareTo(MultiMediaStream other) {
+		if(other.bitRate != 0 && this.bitRate != 0) {
+			return (int)(other.bitRate - this.bitRate);
+		} else if(other.resolution != null && this.resolution != null) {
+			return this.resolution.compareTo(other.resolution);
+		}
+		return 0;
 	}
 
 }

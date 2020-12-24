@@ -4,12 +4,16 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.json.JSONObject;
+import org.jtube.data.MultimediaFormatType;
 import org.jtube.data.Source;
+import org.jtube.data.youtube.Format;
 
 import javax.validation.Valid;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -129,4 +133,10 @@ public class ProductData {
 		return new JSONObject(this).toString(3);
 	}
 
+	public List<MultiMediaStream> getMultiMediaStreams(MultimediaFormatType multimediaFormatType) {
+		return multiMediaStreams.stream()
+				.filter((stream) -> stream.getType().equals(multimediaFormatType))
+				.sorted()
+				.collect(Collectors.toList());
+	}
 }

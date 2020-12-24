@@ -394,11 +394,12 @@ public class Format implements Comparable<Format> {
 
     @Override
     public int compareTo(Format other) {
-        return other.averageBitrate - this.averageBitrate;
+        return other.bitrate - this.bitrate;
     }
 
     public MultimediaFormatType getMediaFormatType() {
-        if(mimeType.toLowerCase().contains("audio") && mimeType.toLowerCase().contains("video")) {
+        if((mimeType.toLowerCase().contains("audio") && mimeType.toLowerCase().contains("video"))
+                || (audioSampleRate != null && !audioSampleRate.trim().isEmpty() && mimeType.toLowerCase().contains("video"))) {
             return AUDIO_VIDEO;
         } else if(mimeType.toLowerCase().contains("audio")) {
             return AUDIO;

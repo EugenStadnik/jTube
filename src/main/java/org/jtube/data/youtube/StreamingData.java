@@ -128,6 +128,12 @@ public class StreamingData {
         return new EqualsBuilder().append(dashManifestUrl, rhs.dashManifestUrl).append(formats, rhs.formats).append(adaptiveFormats, rhs.adaptiveFormats).append(additionalProperties, rhs.additionalProperties).append(expiresInSeconds, rhs.expiresInSeconds).isEquals();
     }
 
+    public List<Format> getAllFormats() {
+        return Stream.concat(adaptiveFormats.stream(), formats.stream())
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
     public List<Format> getFormats(MultimediaFormatType multimediaFormatType) {
         return Stream.concat(adaptiveFormats.stream(), formats.stream())
                 .filter((format) -> format.getMediaFormatType().equals(multimediaFormatType))

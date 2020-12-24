@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.jsoup.nodes.Document;
 import org.jtube.data.MultimediaFormatType;
 import org.jtube.transformators.SegmentedPlaylistTransformator;
+import org.jtube.transformators.YouTubeTransformator;
 import org.jtube.utils.html.SegmentedPlaylistSourceDataFilter;
 import org.jtube.utils.html.SourceDataFilter;
 import org.jtube.utils.html.YoutubeSourceDataFilter;
@@ -26,6 +27,7 @@ import org.jtube.utils.net.UrlLoader;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 
 public class Processor extends Thread {
 
@@ -37,27 +39,51 @@ public class Processor extends Thread {
 		this.youTubeUrl = youTubeUrl;
 	}
 
-
-
 	@Override
 	public void run() {
 
 		try {
-			Document document = UrlLoader.getInstance().load(new URL("https://tortuga.wtf/vod/40376"));
-			SourceDataFilter filter = SegmentedPlaylistSourceDataFilter.getInstance();
-			String masterPlaylistUrl = filter.filterSourceData(document);
-			SegmentedPlaylistSourceData sourceData = SegmentedPlaylistSourceDataMapper.getInstance().parseSourceData(masterPlaylistUrl);
-			SegmentedPlaylistTransformator transformator = new SegmentedPlaylistTransformator();
-			ProductData productData = transformator.transform(sourceData);
-			logger.debug(productData);
+			URL root = new URL("https://tortuga.wtf/vod/40376");
+			Document document = UrlLoader.getInstance().load(root);
+			/////////////////////////////////////////////////////////////////////////
+			ProductData productData = SegmentedPlaylistTransformator
+					.getInstance()
+					.transform(
+							SegmentedPlaylistSourceDataMapper
+									.getInstance()
+									.parseSourceData(
+											SegmentedPlaylistSourceDataFilter
+													.getInstance()
+													.filterSourceData(document)
+									)
+					);
+			//////////////////////////////////////////////////////////////////////////
+			productData.setCanonicalUrl(root);
+			//logger.debug(productData);
+
+			URL root2 = new URL("https://www.youtube.com/watch?v=qqgeIWTyShU");
+			Document document2 = UrlLoader.getInstance().load(root2);
+			ProductData productData2 = YouTubeTransformator
+					.getInstance()
+					.transform(
+							YouTubeSourceDataMapper
+									.getInstance()
+									.parseSourceData(
+											YoutubeSourceDataFilter
+													.getInstance()
+													.filterSourceData(document2)
+									)
+					);
+			productData2.setCanonicalUrl(root2);
+			logger.debug(productData2);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		AbstractPlaylistParser rootParser = new MasterPlaylistParser();
-		AbstractPlaylistParser parser = new MediaPlaylistParser();
+		MasterPlaylistParser rootParser = new MasterPlaylistParser();
+		MediaPlaylistParser parser = new MediaPlaylistParser();
 		try {
-			MasterPlaylist root = (MasterPlaylist) rootParser.readPlaylist("#EXTM3U\n" +
+			MasterPlaylist root = rootParser.readPlaylist("#EXTM3U\n" +
 					"#EXT-X-STREAM-INF:RESOLUTION=1920x1080,BANDWIDTH=2128000\n" +
 					"./1080/index.m3u8\n" +
 					"#EXT-X-STREAM-INF:RESOLUTION=1280x720,BANDWIDTH=1096000\n" +
@@ -65,10 +91,10 @@ public class Processor extends Thread {
 					"#EXT-X-STREAM-INF:RESOLUTION=854x480,BANDWIDTH=714000\n" +
 					"./480/index.m3u8");
 			System.out.println(root);
-			System.out.println(root.variants().get(0).resolution().get().height());
+			System.out.println(Objects.requireNonNull(root.variants().get(0).resolution().orElse(null)).height());
 			System.out.println(root.variants().get(0).bandwidth());
 			System.out.println(root.variants().get(0).uri());
-			MediaPlaylist playlist = (MediaPlaylist) parser.readPlaylist("#EXTM3U\n" +
+			MediaPlaylist playlist = parser.readPlaylist("#EXTM3U\n" +
 					"#EXT-X-VERSION:3\n" +
 					"#EXT-X-ALLOW-CACHE:YES\n" +
 					"#EXT-X-TARGETDURATION:10\n" +

@@ -11,7 +11,6 @@ import java.util.Map;
 
 public class SegmentedPlaylistSourceData extends SourceData {
 
-    private URL canonicalUrl;
     private Map<URL, MasterPlaylist> uriMasterPlaylistMap = new HashMap<>();
     private Map<URL, MediaPlaylist> uriMediaPlaylistMap = new HashMap<>();
 
@@ -21,14 +20,6 @@ public class SegmentedPlaylistSourceData extends SourceData {
 
     public Map<URL, MediaPlaylist> getUriMediaPlaylistMap() {
         return uriMediaPlaylistMap;
-    }
-
-    public URL getCanonicalUrl() {
-        return canonicalUrl;
-    }
-
-    public void setCanonicalUrl(URL canonicalUrl) {
-        this.canonicalUrl = canonicalUrl;
     }
 
     @Override

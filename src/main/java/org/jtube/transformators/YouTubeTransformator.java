@@ -10,6 +10,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class YouTubeTransformator implements Transformator {
+
+	private static YouTubeTransformator instance;
+
+	private YouTubeTransformator() {}
+
+	public static synchronized YouTubeTransformator getInstance() {
+		if(instance == null) {
+			instance = new YouTubeTransformator();
+		}
+		return instance;
+	}
+
 	@Override
 	public ProductData transform(SourceData sourceData) {
 		YouTubeSourceData youTubeSourceData = (YouTubeSourceData) sourceData;
@@ -17,13 +29,13 @@ public class YouTubeTransformator implements Transformator {
 				.withTitle(youTubeSourceData.getVideoDetails().getTitle())
 				.withSource(Source.YOUTUBE)
 				.withMultiMediaStreams(
-						youTubeSourceData.getStreamingData().getFormats().stream()
+						youTubeSourceData.getStreamingData().getAllFormats().stream()
 						.map(format -> new MultiMediaStream()
 								.withType(format.getMediaFormatType())
 								.withResolution(format.getQualityLabel())
-								.withFrameRate(format.getAverageBitrate())
-								.withAudioSampleRate(Integer.parseInt(format.getAudioSampleRate()))
-								.withBitRate(format.getAverageBitrate())
+								.withFrameRate(format.getFps())
+								.withAudioSampleRate(format.getAudioSampleRate())
+								.withBitRate(format.getBitrate())
 								.withUrls(Stream.of(format.getUrl()).collect(Collectors.toList()))
 						).collect(Collectors.toList())
 				);

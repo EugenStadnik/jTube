@@ -26,8 +26,7 @@ public class SegmentedPlaylistSourceDataFilter implements SourceDataFilter {
 		String result = Arrays.stream(document.getElementsByAttributeValue("type", "text/javascript").stream()
 				.filter((element) -> element.data().contains("file:")).findFirst()
 				.map(Element::data).orElse("").split("\n"))
-
-				.filter(s -> s.contains("file:")).findFirst()
+				.filter(s -> s.contains("file:") && s.contains(".m3u")).findFirst()
 				.map(s -> s.replaceAll("^\\s+file:[ ]?\"", "").replaceAll("\",$", ""))
 				.orElse(null);
 		if(result != null) {

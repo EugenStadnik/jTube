@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 import org.jtube.data.SourceDataMapper;
 import org.jtube.data.segmentedPlaylist.SegmentedPlaylistSourceData;
 import org.jtube.utils.net.UrlLoader;
+import org.jtube.utils.net.UrlUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -16,11 +17,12 @@ import java.util.Map;
 
 public class SegmentedPlaylistSourceDataMapper implements SourceDataMapper {
 
-	final static Logger logger = Logger.getLogger(SegmentedPlaylistSourceDataMapper.class);
 	private static SegmentedPlaylistSourceDataMapper instance;
 	private static MasterPlaylistParser masterPlaylistParser;
 	private static MediaPlaylistParser mediaPlaylistParser;
 	private static final UrlLoader URL_LOADER = UrlLoader.getInstance();
+
+	private UrlUtils urlUtils = UrlUtils.getInstance();
 
 	private SegmentedPlaylistSourceDataMapper() {}
 
@@ -46,8 +48,7 @@ public class SegmentedPlaylistSourceDataMapper implements SourceDataMapper {
 		Map<URL, MediaPlaylist> uriMediaPlaylistMap = result.getUriMediaPlaylistMap();
 		masterPlaylist.variants().forEach(variant -> {
 			try {
-				URL mediaPlaylistURL = new URL(masterPlaylistURL.getProtocol(), masterPlaylistURL.getHost(), masterPlaylistURL.getPort()
-						, Paths.get(masterPlaylistURL.getFile()).getParent().toString() + variant.uri().replaceFirst("^[.]", ""));
+				URL mediaPlaylistURL = urlUtils.enrichUrl(masterPlaylistURL, variant.uri());
 				uriMediaPlaylistMap.put(mediaPlaylistURL
 						, mediaPlaylistParser.readPlaylist(URL_LOADER.download(mediaPlaylistURL)));
 			} catch (IOException e) {
