@@ -1,161 +1,60 @@
 package org.jtube;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import io.lindstrom.m3u8.model.MasterPlaylist;
-import io.lindstrom.m3u8.model.MediaPlaylist;
-import io.lindstrom.m3u8.parser.AbstractPlaylistParser;
-import io.lindstrom.m3u8.parser.MasterPlaylistParser;
-import io.lindstrom.m3u8.parser.MediaPlaylistParser;
-import io.lindstrom.m3u8.parser.PlaylistParserException;
-import org.jtube.data.objectMappers.SegmentedPlaylistSourceDataMapper;
-import org.jtube.data.objectMappers.YouTubeSourceDataMapper;
 import org.jtube.data.result.ProductData;
-import org.jtube.data.segmentedPlaylist.SegmentedPlaylistSourceData;
-import org.jtube.data.youtube.YouTubeSourceData;
-import org.jtube.data.youtube.Format;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Document;
-import org.jtube.data.MultimediaFormatType;
-import org.jtube.transformators.SegmentedPlaylistTransformator;
-import org.jtube.transformators.YouTubeTransformator;
-import org.jtube.utils.html.SegmentedPlaylistSourceDataFilter;
-import org.jtube.utils.html.SourceDataFilter;
-import org.jtube.utils.html.YoutubeSourceDataFilter;
-import org.jtube.utils.media.Merger;
+import org.jtube.handlers.Handler;
+import org.jtube.handlers.SegmentedPlaylistHandler;
+import org.jtube.handlers.YouTubeHandler;
 import org.jtube.utils.net.UrlLoader;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
-public class Processor extends Thread {
+public class Processor {
 
 	final static Logger logger = Logger.getLogger(Processor.class);
 
-	private String youTubeUrl;
+	private final Stream<Handler> handlersStream = Stream.of(new YouTubeHandler(), new SegmentedPlaylistHandler());
+	private final URL url;
+	private ProductData productData;
 
-	public Processor(String youTubeUrl) {
-		this.youTubeUrl = youTubeUrl;
+	public Processor(String url) throws MalformedURLException {
+		this.url = new URL(url);
 	}
 
-	@Override
-	public void run() {
-
-		try {
-			URL root = new URL("https://tortuga.wtf/vod/40376");
-			Document document = UrlLoader.getInstance().load(root);
-			/////////////////////////////////////////////////////////////////////////
-			ProductData productData = SegmentedPlaylistTransformator
-					.getInstance()
-					.transform(
-							SegmentedPlaylistSourceDataMapper
-									.getInstance()
-									.parseSourceData(
-											SegmentedPlaylistSourceDataFilter
-													.getInstance()
-													.filterSourceData(document)
-									)
-					);
-			//////////////////////////////////////////////////////////////////////////
-			productData.setCanonicalUrl(root);
-			//logger.debug(productData);
-
-			URL root2 = new URL("https://www.youtube.com/watch?v=qqgeIWTyShU");
-			Document document2 = UrlLoader.getInstance().load(root2);
-			ProductData productData2 = YouTubeTransformator
-					.getInstance()
-					.transform(
-							YouTubeSourceDataMapper
-									.getInstance()
-									.parseSourceData(
-											YoutubeSourceDataFilter
-													.getInstance()
-													.filterSourceData(document2)
-									)
-					);
-			productData2.setCanonicalUrl(root2);
-			logger.debug(productData2);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		MasterPlaylistParser rootParser = new MasterPlaylistParser();
-		MediaPlaylistParser parser = new MediaPlaylistParser();
-		try {
-			MasterPlaylist root = rootParser.readPlaylist("#EXTM3U\n" +
-					"#EXT-X-STREAM-INF:RESOLUTION=1920x1080,BANDWIDTH=2128000\n" +
-					"./1080/index.m3u8\n" +
-					"#EXT-X-STREAM-INF:RESOLUTION=1280x720,BANDWIDTH=1096000\n" +
-					"./720/index.m3u8\n" +
-					"#EXT-X-STREAM-INF:RESOLUTION=854x480,BANDWIDTH=714000\n" +
-					"./480/index.m3u8");
-			System.out.println(root);
-			System.out.println(Objects.requireNonNull(root.variants().get(0).resolution().orElse(null)).height());
-			System.out.println(root.variants().get(0).bandwidth());
-			System.out.println(root.variants().get(0).uri());
-			MediaPlaylist playlist = parser.readPlaylist("#EXTM3U\n" +
-					"#EXT-X-VERSION:3\n" +
-					"#EXT-X-ALLOW-CACHE:YES\n" +
-					"#EXT-X-TARGETDURATION:10\n" +
-					"#EXT-X-MEDIA-SEQUENCE:1\n" +
-					"#EXT-X-PLAYLIST-TYPE:VOD\n" +
-					"#EXTINF:6.256667,\n" +
-					"segment1.ts\n" +
-					"#EXTINF:5.005333,\n" +
-					"segment2.ts\n" +
-					"#EXTINF:7.591422,\n" +
-					"segment3.ts\n" +
-					"#EXT-X-ENDLIST");
-			System.out.println(playlist.mediaSegments().get(0).uri());
-			System.out.println(playlist);
-		} catch (PlaylistParserException e) {
-			e.printStackTrace();
-		}
-
+	public Processor(URL url) {
+		this.url = url;
 	}
 
-	public void downloadBestQuality() {
-		logger.info("Processing " + youTubeUrl + " url...");
-		Document document;
+	public void process() {
 		try {
-			document = UrlLoader.getInstance().load(new URL(youTubeUrl));
+			Document document = UrlLoader.getInstance().load(url);
+			productData = handlersStream.map(handler -> {
+				logger.debug(handler.getClass().getSimpleName() + " handler is working for " + url + " url...");
+				try {
+					ProductData productData = handler.handle(document);
+					if(productData == null) {
+						return null;
+					}
+					productData.setCanonicalUrl(url);
+					return productData;
+				} catch (Exception e) {
+					logger.warn("" + e + " for " + url + " url.");
+					return null;
+				}
+
+			}).filter(Objects::nonNull).findFirst().orElse(null);
 		} catch (IOException e) {
 			logger.error(e);
-			return;
 		}
-		YouTubeSourceData youTubeSourceData;
-		try {
-			youTubeSourceData = YouTubeSourceDataMapper.getInstance()
-					.parseSourceData(YoutubeSourceDataFilter.getInstance().filterSourceData(document));
-		} catch (JsonProcessingException e) {
-			logger.error(e);
-			return;
-		}
-		List<Format> videoFormats = youTubeSourceData.getStreamingData().getFormats(MultimediaFormatType.VIDEO);
-		List<Format> audioFormats = youTubeSourceData.getStreamingData().getFormats(MultimediaFormatType.AUDIO);
-		String title = youTubeSourceData.getVideoDetails().getNormalizedTitle();
-		logger.info("Going to download " + videoFormats.get(0) + " video and " + audioFormats.get(0)
-				+ " audio from " + youTubeUrl + " url.");
-		try {
-			UrlLoader.getInstance().downloadToFile(videoFormats.get(0).getUrl(), videoFormats.get(0).getTemporaryFile(title));
-			UrlLoader.getInstance().downloadToFile(audioFormats.get(0).getUrl(), audioFormats.get(0).getTemporaryFile(title));
-		} catch (IOException e) {
-			logger.error(e);
-			return;
-		}
-		try {
-			Merger.getInstance().mergeAudioAndVideo(audioFormats.get(0).getTemporaryFile(title)
-					, videoFormats.get(0).getTemporaryFile(title)
-					, videoFormats.get(0).getMergedFile(title));
-		} catch (IOException | InterruptedException e) {
-			logger.error(e);
-			return;
-		}
-		logger.info("The " + videoFormats.get(0).getTemporaryFile(title).getName() + " temporary video file is deleted: "
-				+ videoFormats.get(0).getTemporaryFile(title).delete());
-		logger.info("The " + audioFormats.get(0).getTemporaryFile(title).getName() + " temporary audio file is deleted: "
-				+ audioFormats.get(0).getTemporaryFile(title).delete());
+	}
+
+	public ProductData getProductData() {
+		return productData;
 	}
 
 }
