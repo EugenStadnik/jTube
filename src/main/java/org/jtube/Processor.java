@@ -14,27 +14,41 @@ import java.net.URL;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-public class Processor {
+public class Processor extends Thread {
 
-	final static Logger logger = Logger.getLogger(Processor.class);
-
-	private final Stream<Handler> handlersStream = Stream.of(new YouTubeHandler(), new SegmentedPlaylistHandler());
+	private static final Logger LOGGER = Logger.getLogger(Processor.class);
+	private static Processor instance;
 	private final URL url;
+	private final Stream<Handler> handlersStream = Stream.of(YouTubeHandler.getInstance()
+			, SegmentedPlaylistHandler.getInstance());
 	private ProductData productData;
+	private boolean finished = false;
 
 	public Processor(String url) throws MalformedURLException {
 		this.url = new URL(url);
 	}
-
 	public Processor(URL url) {
 		this.url = url;
 	}
 
-	public void process() {
+	public URL getUrl() {
+		return url;
+	}
+
+	public boolean isFinished() {
+		return finished;
+	}
+
+	public ProductData getProductData() {
+		return productData;
+	}
+
+	@Override
+	public void run() {
 		try {
 			Document document = UrlLoader.getInstance().load(url);
-			productData = handlersStream.map(handler -> {
-				logger.debug(handler.getClass().getSimpleName() + " handler is working for " + url + " url...");
+			this.productData = handlersStream.map(handler -> {
+				LOGGER.debug(handler.getClass().getSimpleName() + " handler is working for " + url + " url...");
 				try {
 					ProductData productData = handler.handle(document);
 					if(productData == null) {
@@ -43,18 +57,19 @@ public class Processor {
 					productData.setCanonicalUrl(url);
 					return productData;
 				} catch (Exception e) {
-					logger.warn("" + e + " for " + url + " url.");
-					return null;
+					LOGGER.error("" + e + " for " + url + " url.");
+					return new ProductData().withCanonicalUrl(url).withAppendError(e);
 				}
-
 			}).filter(Objects::nonNull).findFirst().orElse(null);
 		} catch (IOException e) {
-			logger.error(e);
+			LOGGER.error("" + e + " for " + url + " url.");
+			if(this.productData == null) {
+				this.productData = new ProductData().withCanonicalUrl(url).withAppendError(e);
+			} else {
+				this.productData.withAppendError(e);
+			}
 		}
-	}
-
-	public ProductData getProductData() {
-		return productData;
+		this.finished = true;
 	}
 
 }

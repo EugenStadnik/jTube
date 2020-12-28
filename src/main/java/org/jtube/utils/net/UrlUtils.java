@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 public class UrlUtils {
 
-	final static Logger logger = Logger.getLogger(UrlUtils.class);
+	private static final Logger LOGGER = Logger.getLogger(UrlUtils.class);
 	private static UrlUtils instance;
 
 	private UrlUtils() {}

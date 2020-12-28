@@ -6,14 +6,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.json.JSONObject;
 import org.jtube.data.MultimediaFormatType;
 import org.jtube.data.Source;
-import org.jtube.data.youtube.Format;
 
 import javax.validation.Valid;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -34,7 +33,10 @@ public class ProductData {
 	private Source source;
 	@JsonProperty("multiMediaStreams")
 	@Valid
-	private List<MultiMediaStream> multiMediaStreams = new LinkedList<>();
+	private List<MultiMediaStream> multiMediaStreams = new ArrayList<>();
+	@JsonProperty("errors")
+	@Valid
+	private List<Throwable> errors = new ArrayList<>();
 
 	/**
 	 * No args constructor for use in serialization
@@ -108,6 +110,21 @@ public class ProductData {
 
 	public ProductData withMultiMediaStreams(List<MultiMediaStream> multiMediaStreams) {
 		this.multiMediaStreams = multiMediaStreams;
+		return this;
+	}
+
+	@JsonProperty("errors")
+	public List<Throwable> getErrors() {
+		return errors;
+	}
+
+	@JsonProperty("errors")
+	public void setErrors(List<Throwable> errors) {
+		this.errors = errors;
+	}
+
+	public ProductData withAppendError(Throwable error) {
+		this.errors.add(error);
 		return this;
 	}
 

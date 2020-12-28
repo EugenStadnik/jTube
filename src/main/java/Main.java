@@ -10,28 +10,32 @@ import java.util.stream.Stream;
 
 class Main {
 
-	final static Logger logger = Logger.getLogger(Main.class);
+	private static final Logger LOGGER = Logger.getLogger(Main.class);
 
 	public static void main(String[] args) {
 		if(args == null || args.length == 0) {
 			System.out.println("Usage: java Example https://www.youtube.com/watch?v=H9154xIoYTA https://ashdi.vip/vod/666 https://tortuga.wtf/vod/40376");
 		} else {
-			List<ProductData> productDataList = Stream.of(args).map((arg) -> {
+			Stream.of(args).map((arg) -> {
 				try {
 					return new Processor(arg);
 				} catch(MalformedURLException e) {
-					logger.error(e);
+					LOGGER.error(e + " for " + arg + " url.");
 					return null;
 				}
-			}).filter(Objects::nonNull).map((processor) -> {
-				processor.process();
-				return processor.getProductData();
-			}).collect(Collectors.toList());
-			logger.info(productDataList);
+			}).filter(Objects::nonNull).peek(Thread::start).peek((processor) -> {
+				while(!processor.isFinished()) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						LOGGER.error(e + " during waiting for result of " + processor.getUrl() + " url processing.");
+					}
+				}
+			}).forEach(processor -> System.out.println(processor.getProductData()));
 		}
 	}
 
-	/*public void downloadBestQuality() {
+	/*public static void downloadBestQuality() {
 		/*logger.info("Processing " + youTubeUrl + " url...");
 		Document document;
 		try {

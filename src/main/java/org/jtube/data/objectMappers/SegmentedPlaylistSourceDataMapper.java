@@ -41,6 +41,7 @@ public class SegmentedPlaylistSourceDataMapper implements SourceDataMapper {
 
 	@Override
 	public SegmentedPlaylistSourceData parseSourceData(String masterPlaylistUrl) throws IOException {
+		if(masterPlaylistUrl == null) {return null;}
 		SegmentedPlaylistSourceData result = new SegmentedPlaylistSourceData();
 		URL masterPlaylistURL = new URL(masterPlaylistUrl);
 		MasterPlaylist masterPlaylist = masterPlaylistParser.readPlaylist(URL_LOADER.download(masterPlaylistURL));

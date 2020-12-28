@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 public class Merger {
 
-	final static Logger logger = Logger.getLogger(Merger.class);
+	private static final Logger LOGGER = Logger.getLogger(Merger.class);
 	private static Merger instance;
 	private ShellExecutor shellExecutor = ShellExecutor.getInstance();
 
@@ -35,17 +35,17 @@ public class Merger {
 			}
 		}
 		if (outputFile.exists()) {
-			logger.info("The " + outputFile.getName() + " redundant output file deleted: " + outputFile.delete());
+			LOGGER.info("The " + outputFile.getName() + " redundant output file deleted: " + outputFile.delete());
 		}
 		String command = "ffmpeg -i " + audioFile.getAbsolutePath() + " -i " + videoFile.getAbsolutePath()
 				+ " -c:v copy -c:a aac " + outputFile.getAbsolutePath();
 		shellExecutor.execute(command);
 		if (!outputFile.exists()) {
-			logger.warn("The " + videoFile.getName() + " video and " + audioFile.getName()
+			LOGGER.warn("The " + videoFile.getName() + " video and " + audioFile.getName()
 					+ " audio are not merged to " + outputFile.getName() + " file.");
 			return null;
 		}
-		logger.info("The " + videoFile.getName() + " video and " + audioFile.getName()
+		LOGGER.info("The " + videoFile.getName() + " video and " + audioFile.getName()
 				+ " audio are merged successfully to " + outputFile.getName() + " file.");
 		return outputFile;
 	}

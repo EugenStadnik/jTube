@@ -15,7 +15,7 @@ import java.util.Scanner;
 
 public class UrlLoader {
 
-	final static Logger logger = Logger.getLogger(UrlLoader.class);
+	private static final Logger LOGGER = Logger.getLogger(UrlLoader.class);
 	private static UrlLoader instance;
 
 	private UrlLoader() {}
@@ -28,17 +28,17 @@ public class UrlLoader {
 	}
 
 	public Document load(URL url) throws IOException {
-		Document document = Jsoup.parse(url, 3000);
+		Document document = Jsoup.parse(url, 10000);
 		if(document != null) {
-			logger.info("The html source of " + url + " url is downloaded successfully.");
+			LOGGER.info("The html source of " + url + " url is downloaded successfully.");
 		} else {
-			logger.warn("The html source of " + url + " url is not downloaded.");
+			LOGGER.warn("The html source of " + url + " url is not downloaded.");
 		}
 		return document;
 	}
 
 	public String download(URL url) throws IOException {
-		String result = null;
+		String result;
 		try(InputStream in = url.openStream();
 			ReadableByteChannel rbc = Channels.newChannel(in))
 		{
@@ -46,10 +46,10 @@ public class UrlLoader {
 			result = scanner.useDelimiter("\\z").next();
 		}
 		if(result == null) {
-			logger.warn("The " + url + " url is not downloaded.");
+			LOGGER.warn("The " + url + " url is not downloaded.");
 			return null;
 		}
-		logger.info("The " + url + " url downloaded successfully.");
+		LOGGER.info("The " + url + " url downloaded successfully.");
 		return result;
 	}
 
@@ -61,10 +61,10 @@ public class UrlLoader {
 			fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 		}
 		if(!downloadingFile.exists()) {
-			logger.warn("The " + downloadingFile.getName() + " file is not downloaded.");
+			LOGGER.warn("The " + downloadingFile.getName() + " file is not downloaded.");
 			return null;
 		}
-		logger.info("The " + downloadingFile.getName() + " file downloaded successfully.");
+		LOGGER.info("The " + downloadingFile.getName() + " file downloaded successfully.");
 		return downloadingFile;
 	}
 

@@ -8,7 +8,7 @@ import java.util.Arrays;
 
 public class SegmentedPlaylistSourceDataFilter implements SourceDataFilter {
 
-	final static Logger logger = Logger.getLogger(SegmentedPlaylistSourceDataFilter.class);
+	private static final Logger LOGGER = Logger.getLogger(SegmentedPlaylistSourceDataFilter.class);
 
 	private static SegmentedPlaylistSourceDataFilter instance;
 
@@ -30,9 +30,9 @@ public class SegmentedPlaylistSourceDataFilter implements SourceDataFilter {
 				.map(s -> s.replaceAll("^\\s+file:[ ]?\"", "").replaceAll("\",$", ""))
 				.orElse(null);
 		if(result != null) {
-			logger.info("The html source for " + result + " video is parsed successfully.");
+			LOGGER.info("The html source for " + result + " video is parsed successfully.");
 		} else {
-			logger.warn("The html source of current url is not parsed.");
+			LOGGER.warn("The html source of current url is not parsed.");
 		}
 		return result;
 	}

@@ -9,6 +9,18 @@ import org.jtube.utils.html.SegmentedPlaylistSourceDataFilter;
 import java.io.IOException;
 
 public class SegmentedPlaylistHandler implements Handler {
+
+	private static SegmentedPlaylistHandler instance;
+
+	private SegmentedPlaylistHandler() {}
+
+	public static synchronized SegmentedPlaylistHandler getInstance() {
+		if(instance == null) {
+			instance = new SegmentedPlaylistHandler();
+		}
+		return instance;
+	}
+
 	@Override
 	public ProductData handle(Document document) throws IOException {
 		return SegmentedPlaylistTransformator

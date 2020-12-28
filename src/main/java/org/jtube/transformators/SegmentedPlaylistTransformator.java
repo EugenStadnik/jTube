@@ -31,6 +31,7 @@ public class SegmentedPlaylistTransformator implements Transformator {
 
 	@Override
 	public ProductData transform(SourceData sourceData) {
+		if(sourceData == null) {return null;}
 		SegmentedPlaylistSourceData segmentedPlaylistSourceData = (SegmentedPlaylistSourceData) sourceData;
 		URL streamsBaseUrl = segmentedPlaylistSourceData.getUriMasterPlaylistMap().keySet().stream().findFirst().orElse(null);
 		return new ProductData()
@@ -44,6 +45,8 @@ public class SegmentedPlaylistTransformator implements Transformator {
 											.withType(MultimediaFormatType.AUDIO_VIDEO)
 											.withResolution(QualityLabel.valueOf("" + Objects.requireNonNull(variant.resolution().orElse(null)).height()))
 											.withBitRate(variant.bandwidth())
+											.withFrameRate(variant.frameRate().map(Double::longValue).orElse(null))
+											.withCodecs(variant.codecs())
 											.withUrls(
 													segmentedPlaylistSourceData.getUriMediaPlaylistMap().get(streamBaseUrl).mediaSegments().stream()
 															.map(MediaSegment::uri).map(uri -> urlUtils.enrichUrl(streamBaseUrl, "/" + uri)

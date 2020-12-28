@@ -4,7 +4,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -37,6 +36,8 @@ public class MultiMediaStream implements Comparable<MultiMediaStream> {
 	private long bitRate;
 	@JsonProperty("urls")
 	private List<URL> urls = new ArrayList<>();
+	@JsonProperty("codecs")
+	private List<String> codecs = new ArrayList<>();
 
 	/**
 	 * No args constructor for use in serialization
@@ -45,7 +46,7 @@ public class MultiMediaStream implements Comparable<MultiMediaStream> {
 	public MultiMediaStream() {
 	}
 
-	public MultiMediaStream(MultimediaFormatType type, QualityLabel resolution, Long frameRate, String audioSampleRate, int bitRate, List<URL> urls) {
+	public MultiMediaStream(MultimediaFormatType type, QualityLabel resolution, Long frameRate, String audioSampleRate, int bitRate, List<URL> urls, List<String> codecs) {
 		super();
 		this.type = type;
 		this.resolution = resolution;
@@ -53,6 +54,7 @@ public class MultiMediaStream implements Comparable<MultiMediaStream> {
 		this.audioSampleRate = audioSampleRate;
 		this.bitRate = bitRate;
 		this.urls = urls;
+		this.codecs = codecs;
 	}
 
 	@JsonProperty("type")
@@ -95,7 +97,7 @@ public class MultiMediaStream implements Comparable<MultiMediaStream> {
 		this.frameRate = frameRate;
 	}
 
-	public MultiMediaStream withFrameRate(long frameRate) {
+	public MultiMediaStream withFrameRate(Long frameRate) {
 		this.frameRate = frameRate;
 		return this;
 	}
@@ -142,6 +144,21 @@ public class MultiMediaStream implements Comparable<MultiMediaStream> {
 
 	public MultiMediaStream withUrls(List<URL> urls) {
 		this.urls = urls;
+		return this;
+	}
+
+	@JsonProperty("codecs")
+	public List<String> getCodecs() {
+		return codecs;
+	}
+
+	@JsonProperty("codecs")
+	public void setCodecs(List<String> codecs) {
+		this.codecs = codecs;
+	}
+
+	public MultiMediaStream withCodecs(List<String> codecs) {
+		this.codecs = codecs;
 		return this;
 	}
 

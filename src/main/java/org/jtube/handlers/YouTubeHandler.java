@@ -9,6 +9,18 @@ import org.jtube.utils.html.YoutubeSourceDataFilter;
 import java.io.IOException;
 
 public class YouTubeHandler implements Handler {
+
+	private static YouTubeHandler instance;
+
+	private YouTubeHandler() {}
+
+	public static synchronized YouTubeHandler getInstance() {
+		if(instance == null) {
+			instance = new YouTubeHandler();
+		}
+		return instance;
+	}
+
 	@Override
 	public ProductData handle(Document document) throws IOException {
 		return YouTubeTransformator

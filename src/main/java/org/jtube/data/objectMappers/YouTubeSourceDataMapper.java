@@ -8,7 +8,7 @@ import org.jtube.data.youtube.YouTubeSourceData;
 
 public class YouTubeSourceDataMapper implements SourceDataMapper {
 
-	final static Logger logger = Logger.getLogger(YouTubeSourceDataMapper.class);
+	private static final Logger LOGGER = Logger.getLogger(YouTubeSourceDataMapper.class);
 	private static YouTubeSourceDataMapper instance;
 	private static ObjectMapper objectMapper;
 
@@ -26,12 +26,13 @@ public class YouTubeSourceDataMapper implements SourceDataMapper {
 
 	@Override
 	public YouTubeSourceData parseSourceData(String initialPlayerResponse) throws JsonProcessingException {
+		if(initialPlayerResponse == null) {return null;}
 		YouTubeSourceData youTubeSourceData = objectMapper.readValue(initialPlayerResponse, YouTubeSourceData.class);
 		if(youTubeSourceData != null) {
-			logger.info("The media locations of " + youTubeSourceData.getVideoDetails().getVideoId() + " id i.e. \""
+			LOGGER.info("The media locations of " + youTubeSourceData.getVideoDetails().getVideoId() + " id i.e. \""
 					+ youTubeSourceData.getVideoDetails().getTitle() + "\" video are parsed successfully.");
 		} else {
-			logger.warn("The media locations of current url are not parsed.");
+			LOGGER.warn("The media locations of current url are not parsed.");
 		}
 		return youTubeSourceData;
 	}
