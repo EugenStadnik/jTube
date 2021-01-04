@@ -3,15 +3,17 @@ package org.jtube.utils.net;
 import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jtube.data.result.MultiMediaStream;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class UrlLoader {
 
@@ -43,7 +45,7 @@ public class UrlLoader {
 			ReadableByteChannel rbc = Channels.newChannel(in))
 		{
 			Scanner scanner = new Scanner(rbc);
-			result = scanner.useDelimiter("\\z").next();
+			result = scanner.useDelimiter("\\A").next();
 		}
 		if(result == null) {
 			LOGGER.warn("The " + url + " url is not downloaded.");
@@ -66,6 +68,42 @@ public class UrlLoader {
 		}
 		LOGGER.info("The " + downloadingFile.getName() + " file downloaded successfully.");
 		return downloadingFile;
+	}
+
+	public File downloadToFile(List<URL> urls, File downloadingFile) throws IOException {
+		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(downloadingFile)));
+		urls.forEach((url) -> {
+			LOGGER.info("Processing " + url + " url...");
+			InputStream in;
+			try {
+				in = url.openStream();
+				out.write(in.readAllBytes());
+				in.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
+		out.close();
+		if(!downloadingFile.exists()) {
+			LOGGER.warn("The " + downloadingFile.getName() + " file is not downloaded.");
+			return null;
+		}
+		LOGGER.info("The " + downloadingFile.getName() + " file downloaded successfully.");
+		return downloadingFile;
+	}
+
+	public List<File> downloadToFiles(MultiMediaStream multiMediaStream, String title, String path) {
+		return Stream.iterate(0, n -> n + 1).limit(multiMediaStream.getUrls().size()).map((index) -> {
+			URL url = multiMediaStream.getUrls().get(index);
+			try {
+				File file = new File(path + title + "_"
+						+ multiMediaStream.getType().toString().toLowerCase() + "_segment_" + (index + 1) + ".dat");
+				return downloadToFile(url, file);
+			} catch (IOException e) {
+				e.printStackTrace();
+				return null;
+			}
+		}).filter(Objects::nonNull).collect(Collectors.toList());
 	}
 
 }

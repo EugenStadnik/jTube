@@ -4,7 +4,7 @@ import org.jsoup.nodes.Document;
 import org.jtube.data.objectMappers.SegmentedPlaylistSourceDataMapper;
 import org.jtube.data.result.ProductData;
 import org.jtube.transformators.SegmentedPlaylistTransformator;
-import org.jtube.utils.html.SegmentedPlaylistSourceDataFilter;
+import org.jtube.filters.SegmentedPlaylistSourceDataFilter;
 
 import java.io.IOException;
 

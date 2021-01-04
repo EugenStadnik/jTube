@@ -1,4 +1,4 @@
-package org.jtube.utils.html;
+package org.jtube.filters;
 
 import org.jsoup.nodes.Document;
 

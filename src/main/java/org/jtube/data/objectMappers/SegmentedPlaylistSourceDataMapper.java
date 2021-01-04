@@ -12,10 +12,11 @@ import org.jtube.utils.net.UrlUtils;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.util.Map;
 
 public class SegmentedPlaylistSourceDataMapper implements SourceDataMapper {
+
+	private static final Logger LOGGER = Logger.getLogger(SegmentedPlaylistSourceDataMapper.class);
 
 	private static SegmentedPlaylistSourceDataMapper instance;
 	private static MasterPlaylistParser masterPlaylistParser;
@@ -52,6 +53,7 @@ public class SegmentedPlaylistSourceDataMapper implements SourceDataMapper {
 				URL mediaPlaylistURL = urlUtils.enrichUrl(masterPlaylistURL, variant.uri());
 				uriMediaPlaylistMap.put(mediaPlaylistURL
 						, mediaPlaylistParser.readPlaylist(URL_LOADER.download(mediaPlaylistURL)));
+
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}

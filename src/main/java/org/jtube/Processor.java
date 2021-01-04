@@ -11,13 +11,13 @@ import org.jtube.utils.net.UrlLoader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 import java.util.stream.Stream;
 
 public class Processor extends Thread {
 
 	private static final Logger LOGGER = Logger.getLogger(Processor.class);
-	private static Processor instance;
 	private final URL url;
 	private final Stream<Handler> handlersStream = Stream.of(YouTubeHandler.getInstance()
 			, SegmentedPlaylistHandler.getInstance());
@@ -58,9 +58,14 @@ public class Processor extends Thread {
 					return productData;
 				} catch (Exception e) {
 					LOGGER.error("" + e + " for " + url + " url.");
+					e.printStackTrace();
 					return new ProductData().withCanonicalUrl(url).withAppendError(e);
 				}
-			}).filter(Objects::nonNull).findFirst().orElse(null);
+			}).filter(Objects::nonNull).findFirst().orElse(
+					new ProductData().withCanonicalUrl(url).withAppendError(
+							new NoSuchAlgorithmException("Unable to process " + url + " - no appropriate handler is implemented.")
+					)
+			);
 		} catch (IOException e) {
 			LOGGER.error("" + e + " for " + url + " url.");
 			if(this.productData == null) {
@@ -70,6 +75,9 @@ public class Processor extends Thread {
 			}
 		}
 		this.finished = true;
+		synchronized(this) {
+			this.notify();
+		}
 	}
 
 }
