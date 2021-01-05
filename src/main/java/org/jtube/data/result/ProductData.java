@@ -51,6 +51,11 @@ public class ProductData {
 		this.title = title;
 		this.source = source;
 		this.multiMediaStreams = multiMediaStreams;
+		setParentProductData();
+	}
+
+	private void setParentProductData() {
+		this.multiMediaStreams.forEach(multiMediaStream -> multiMediaStream.setParentProductData(this));
 	}
 
 	@JsonProperty("canonicalUrl")
@@ -106,10 +111,12 @@ public class ProductData {
 	@JsonProperty("multiMediaStreams")
 	public void setMultiMediaStreams(List<MultiMediaStream> multiMediaStreams) {
 		this.multiMediaStreams = multiMediaStreams;
+		setParentProductData();
 	}
 
 	public ProductData withMultiMediaStreams(List<MultiMediaStream> multiMediaStreams) {
 		this.multiMediaStreams = multiMediaStreams;
+		setParentProductData();
 		return this;
 	}
 

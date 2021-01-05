@@ -7,7 +7,6 @@ import org.jtube.data.result.ProductData;
 import org.jtube.data.youtube.YouTubeSourceData;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,7 +43,6 @@ public class YouTubeTransformator implements Transformator {
 										.replaceFirst("^.*;[ ]?codecs=\"", "")
 										.replaceFirst("\"$", "")
 										.split(",[ ]?")))
-										//"mimeType": "audio/webm; codecs=\"opus\""
 								.withFileContainer(format.getMimeType()
 										.replaceFirst("^[audiove]{5}/", "")
 										.replaceFirst(";[ ]?codecs=\".*\"$", ""))

@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -42,6 +43,8 @@ public class MultiMediaStream implements Comparable<MultiMediaStream> {
 	private List<String> codecs = new ArrayList<>();
 	@JsonProperty("fileContainer")
 	private String fileContainer;
+	@JsonIgnore
+	private ProductData parentProductData;
 
 	/**
 	 * No args constructor for use in serialization
@@ -185,6 +188,16 @@ public class MultiMediaStream implements Comparable<MultiMediaStream> {
 	public MultiMediaStream withFileContainer(String fileContainer) {
 		this.fileContainer = fileContainer;
 		return this;
+	}
+
+	@JsonIgnore
+	public ProductData parentProductData() {
+		return parentProductData;
+	}
+
+	@JsonIgnore
+	void setParentProductData(ProductData parentProductData) {
+		this.parentProductData = parentProductData;
 	}
 
 	@Override

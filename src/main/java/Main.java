@@ -1,18 +1,16 @@
 import org.apache.log4j.Logger;
 import org.jtube.Processor;
 import org.jtube.data.MultimediaFormatType;
+import org.jtube.data.Source;
 import org.jtube.data.result.MultiMediaStream;
 import org.jtube.data.result.ProductData;
 import org.jtube.utils.Constants;
+import org.jtube.utils.media.YouTubeMerger;
 import org.jtube.utils.net.UrlLoader;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
@@ -40,7 +38,7 @@ class Main {
 				try {
 					synchronized(Thread.currentThread()) {
 						while(!processor.isFinished()) {
-							Thread.currentThread().wait(1000);
+							Thread.currentThread().wait(10);
 						}
 					}
 				} catch (InterruptedException e) {
@@ -48,12 +46,11 @@ class Main {
 				}
 			}).map(Processor::getProductData).collect(Collectors.toList());
 		}
-		LOGGER.info("There is/are " + productData.size() + " processed result(s).\n" + productData);
 		downloadBestQuality(productData);
 	}
 
 	public static void downloadBestQuality(List<ProductData> productData) {
-		productData.stream().filter(productData1 -> productData1.getErrors().isEmpty()).forEach(
+		productData.stream().parallel().filter(productData1 -> productData1.getErrors().isEmpty()).forEach(
 				(productData1) -> {
 					List<MultiMediaStream> audioVideoStreams = productData1.getMultiMediaStreams(MultimediaFormatType.AUDIO_VIDEO);
 					List<MultiMediaStream> videoStreams = productData1.getMultiMediaStreams(MultimediaFormatType.VIDEO);
@@ -62,63 +59,60 @@ class Main {
 					Collections.sort(videoStreams);
 					Collections.sort(audioStreams);
 					try {
-						UrlLoader.getInstance().downloadToFile(audioVideoStreams.get(0).getUrls()
-								, new File(Constants.TMP + productData1.getTitle()
-										+ "." + audioVideoStreams.get(0).getFileContainer()));
-						UrlLoader.getInstance().downloadToFile(audioStreams.get(0).getUrls()
-								, new File(Constants.TMP + productData1.getTitle()
-										+ "_" + audioStreams.get(0).getType() + "." + audioStreams.get(0).getFileContainer()));
-						UrlLoader.getInstance().downloadToFile(videoStreams.get(0).getUrls()
-								, new File(Constants.TMP + productData1.getTitle()
-										+ "_" + videoStreams.get(0).getType() + "." + videoStreams.get(0).getFileContainer()));
+						if(Source.YOUTUBE.equals(productData1.getSource())) {
+							downloadBestQualityYouTube(!audioVideoStreams.isEmpty() ? audioVideoStreams.get(0) : null
+									, !videoStreams.isEmpty() ? videoStreams.get(0) : null
+									, !audioStreams.isEmpty() ? audioStreams.get(0) : null);
+						} else if(Source.SEGMENTED_PLAYLIST.equals(productData1.getSource())) {
+							File temporaryFile = UrlLoader.getInstance().downloadToTempFile(audioVideoStreams.get(0));
+							LOGGER.info("The " + temporaryFile.getName() + " file moved to "
+									+ Constants.DOWNLOADED + " folder successfully: "
+									+ temporaryFile.renameTo(new File(Constants.DOWNLOADED + temporaryFile.getName())));
+						}
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-
 				}
 		);
 	}
 
-	/*public static void downloadBestQuality() {
-		/*logger.info("Processing " + youTubeUrl + " url...");
-		Document document;
+	public static void downloadBestQualityYouTube(MultiMediaStream bestAudioVideoStream
+			, MultiMediaStream bestVideoStream
+			, MultiMediaStream bestAudioStream) {
+		long audioVideoBitrate = Optional.ofNullable(bestAudioVideoStream).map(MultiMediaStream::getBitRate).orElse(0L);
+		long videoBitrate = Optional.ofNullable(bestVideoStream).map(MultiMediaStream::getBitRate).orElse(0L);
+		long audioBitrate = Optional.ofNullable(bestAudioStream).map(MultiMediaStream::getBitRate).orElse(0L);
 		try {
-			document = UrlLoader.getInstance().load(new URL(youTubeUrl));
-		} catch (IOException e) {
-			logger.error(e);
-			return;
+			if(audioVideoBitrate >= videoBitrate + audioBitrate) {
+				assert bestAudioVideoStream != null;
+				File temporaryFile = UrlLoader.getInstance().downloadToTempFile(bestAudioVideoStream);
+				LOGGER.info("The " + temporaryFile.getName() + " file moved to "
+						+ Constants.DOWNLOADED + " folder successfully: "
+						+ temporaryFile.renameTo(new File(Constants.DOWNLOADED + temporaryFile.getName())));
+			} else {
+				assert bestVideoStream != null;
+				File temporaryVideoFile = UrlLoader.getInstance().downloadToFile(bestVideoStream.getUrls()
+						, new File(Constants.TMP + bestVideoStream.parentProductData().getTitle()
+								+ bestVideoStream.getType()
+								+ "." + bestVideoStream.getFileContainer()));
+				assert bestAudioStream != null;
+				File temporaryAudioFile = UrlLoader.getInstance().downloadToFile(bestAudioStream.getUrls()
+						, new File(Constants.TMP + bestAudioStream.parentProductData().getTitle()
+								+ bestAudioStream.getType()
+								+ "." + bestAudioStream.getFileContainer()));
+				File outputFile = new File(Constants.DOWNLOADED
+						+ bestVideoStream.parentProductData().getTitle() + "." + bestVideoStream.getFileContainer());
+				outputFile = YouTubeMerger.getInstance().mergeMultimediaFiles(temporaryAudioFile
+						, temporaryVideoFile, outputFile);
+				if(outputFile != null) {
+					LOGGER.info("The temporary " + temporaryVideoFile.getName() + " file deleted successfully: " + temporaryVideoFile.delete());
+					LOGGER.info("The temporary " + temporaryAudioFile.getName() + " file deleted successfully: " + temporaryAudioFile.delete());
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		YouTubeSourceData youTubeSourceData;
-		try {
-			youTubeSourceData = YouTubeSourceDataMapper.getInstance()
-					.parseSourceData(YoutubeSourceDataFilter.getInstance().filterSourceData(document));
-		} catch (JsonProcessingException e) {
-			logger.error(e);
-			return;
-		}
-		List<Format> videoFormats = youTubeSourceData.getStreamingData().getFormats(MultimediaFormatType.VIDEO);
-		List<Format> audioFormats = youTubeSourceData.getStreamingData().getFormats(MultimediaFormatType.AUDIO);
-		String title = youTubeSourceData.getVideoDetails().getNormalizedTitle();
-		logger.info("Going to download " + videoFormats.get(0) + " video and " + audioFormats.get(0)
-				+ " audio from " + youTubeUrl + " url.");
-		try {
-			UrlLoader.getInstance().downloadToFile(videoFormats.get(0).getUrl(), videoFormats.get(0).getTemporaryFile(title));
-			UrlLoader.getInstance().downloadToFile(audioFormats.get(0).getUrl(), audioFormats.get(0).getTemporaryFile(title));
-		} catch (IOException e) {
-			logger.error(e);
-			return;
-		}
-		try {
-			Merger.getInstance().mergeAudioAndVideo(audioFormats.get(0).getTemporaryFile(title)
-					, videoFormats.get(0).getTemporaryFile(title)
-					, videoFormats.get(0).getMergedFile(title));
-		} catch (IOException | InterruptedException e) {
-			logger.error(e);
-			return;
-		}
-		logger.info("The " + videoFormats.get(0).getTemporaryFile(title).getName() + " temporary video file is deleted: "
-				+ videoFormats.get(0).getTemporaryFile(title).delete());
-		logger.info("The " + audioFormats.get(0).getTemporaryFile(title).getName() + " temporary audio file is deleted: "
-				+ audioFormats.get(0).getTemporaryFile(title).delete());
-	}*/
+
+	}
+
 }

@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jtube.data.result.MultiMediaStream;
+import org.jtube.utils.Constants;
 
 import java.io.*;
 import java.net.URL;
@@ -90,6 +91,12 @@ public class UrlLoader {
 		}
 		LOGGER.info("The " + downloadingFile.getName() + " file downloaded successfully.");
 		return downloadingFile;
+	}
+
+	public File downloadToTempFile(MultiMediaStream multiMediaStream) throws IOException {
+		return downloadToFile(multiMediaStream.getUrls()
+				, new File(Constants.TMP + multiMediaStream.parentProductData().getTitle()
+						+ "." + multiMediaStream.getFileContainer()));
 	}
 
 	public List<File> downloadToFiles(MultiMediaStream multiMediaStream, String title, String path) {
