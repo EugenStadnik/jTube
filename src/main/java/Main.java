@@ -64,10 +64,9 @@ class Main {
 									, !videoStreams.isEmpty() ? videoStreams.get(0) : null
 									, !audioStreams.isEmpty() ? audioStreams.get(0) : null);
 						} else if(Source.SEGMENTED_PLAYLIST.equals(productData1.getSource())) {
-							File temporaryFile = UrlLoader.getInstance().downloadToTempFile(audioVideoStreams.get(0));
-							LOGGER.info("The " + temporaryFile.getName() + " file moved to "
-									+ Constants.DOWNLOADED + " folder successfully: "
-									+ temporaryFile.renameTo(new File(Constants.DOWNLOADED + temporaryFile.getName())));
+							UrlLoader.getInstance().downloadToFile(audioVideoStreams.get(0).getUrls()
+									, new File(Constants.DOWNLOADED + audioVideoStreams.get(0).parentProductData().getTitle()
+											+ "." + audioVideoStreams.get(0).getFileContainer()));
 						}
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -85,10 +84,9 @@ class Main {
 		try {
 			if(audioVideoBitrate >= videoBitrate + audioBitrate) {
 				assert bestAudioVideoStream != null;
-				File temporaryFile = UrlLoader.getInstance().downloadToTempFile(bestAudioVideoStream);
-				LOGGER.info("The " + temporaryFile.getName() + " file moved to "
-						+ Constants.DOWNLOADED + " folder successfully: "
-						+ temporaryFile.renameTo(new File(Constants.DOWNLOADED + temporaryFile.getName())));
+				UrlLoader.getInstance().downloadToFile(bestAudioVideoStream.getUrls()
+						, new File(Constants.DOWNLOADED + bestAudioVideoStream.parentProductData().getTitle()
+								+ "." + bestAudioVideoStream.getFileContainer()));
 			} else {
 				assert bestVideoStream != null;
 				File temporaryVideoFile = UrlLoader.getInstance().downloadToFile(bestVideoStream.getUrls()
