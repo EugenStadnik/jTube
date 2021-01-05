@@ -48,8 +48,8 @@ class Main {
 				}
 			}).map(Processor::getProductData).collect(Collectors.toList());
 		}
-		LOGGER.info("There is/are " + productData.size() + " processed result(s).");
-		//downloadBestQuality(productData);
+		LOGGER.info("There is/are " + productData.size() + " processed result(s).\n" + productData);
+		downloadBestQuality(productData);
 	}
 
 	public static void downloadBestQuality(List<ProductData> productData) {
@@ -63,8 +63,15 @@ class Main {
 					Collections.sort(audioStreams);
 					try {
 						UrlLoader.getInstance().downloadToFile(audioVideoStreams.get(0).getUrls()
-								, new File(Constants.TMP + productData1.getTitle() + ".ts"));
-					} catch (IOException e) {
+								, new File(Constants.TMP + productData1.getTitle()
+										+ "." + audioVideoStreams.get(0).getFileContainer()));
+						UrlLoader.getInstance().downloadToFile(audioStreams.get(0).getUrls()
+								, new File(Constants.TMP + productData1.getTitle()
+										+ "_" + audioStreams.get(0).getType() + "." + audioStreams.get(0).getFileContainer()));
+						UrlLoader.getInstance().downloadToFile(videoStreams.get(0).getUrls()
+								, new File(Constants.TMP + productData1.getTitle()
+										+ "_" + videoStreams.get(0).getType() + "." + videoStreams.get(0).getFileContainer()));
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 

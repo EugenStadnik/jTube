@@ -29,7 +29,7 @@ public class YouTubeTransformator implements Transformator {
 		if(sourceData == null) {return null;}
 		YouTubeSourceData youTubeSourceData = (YouTubeSourceData) sourceData;
 		return new ProductData()
-				.withTitle(youTubeSourceData.getVideoDetails().getTitle())
+				.withTitle(youTubeSourceData.getVideoDetails().getNormalizedTitle())
 				.withSource(Source.YOUTUBE)
 				.withMultiMediaStreams(
 						youTubeSourceData.getStreamingData().getAllFormats().stream()
@@ -44,6 +44,10 @@ public class YouTubeTransformator implements Transformator {
 										.replaceFirst("^.*;[ ]?codecs=\"", "")
 										.replaceFirst("\"$", "")
 										.split(",[ ]?")))
+										//"mimeType": "audio/webm; codecs=\"opus\""
+								.withFileContainer(format.getMimeType()
+										.replaceFirst("^[audiove]{5}/", "")
+										.replaceFirst(";[ ]?codecs=\".*\"$", ""))
 								.withUrls(Stream.of(format.getUrl()).collect(Collectors.toList()))
 						).collect(Collectors.toList())
 				);

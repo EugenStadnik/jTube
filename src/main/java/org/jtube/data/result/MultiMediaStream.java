@@ -20,7 +20,9 @@ import org.jtube.data.youtube.QualityLabel;
 		"frameRate",
 		"audioSampleRate",
 		"bitRate",
-		"urls"
+		"urls",
+		"codecs",
+		"fileContainer"
 })
 public class MultiMediaStream implements Comparable<MultiMediaStream> {
 
@@ -38,6 +40,8 @@ public class MultiMediaStream implements Comparable<MultiMediaStream> {
 	private List<URL> urls = new ArrayList<>();
 	@JsonProperty("codecs")
 	private List<String> codecs = new ArrayList<>();
+	@JsonProperty("fileContainer")
+	private String fileContainer;
 
 	/**
 	 * No args constructor for use in serialization
@@ -46,7 +50,7 @@ public class MultiMediaStream implements Comparable<MultiMediaStream> {
 	public MultiMediaStream() {
 	}
 
-	public MultiMediaStream(MultimediaFormatType type, QualityLabel resolution, Long frameRate, String audioSampleRate, int bitRate, List<URL> urls, List<String> codecs) {
+	public MultiMediaStream(MultimediaFormatType type, QualityLabel resolution, Long frameRate, String audioSampleRate, int bitRate, List<URL> urls, List<String> codecs, String fileContainer) {
 		super();
 		this.type = type;
 		this.resolution = resolution;
@@ -55,6 +59,7 @@ public class MultiMediaStream implements Comparable<MultiMediaStream> {
 		this.bitRate = bitRate;
 		this.urls = urls;
 		this.codecs = codecs;
+		this.fileContainer = fileContainer;
 	}
 
 	@JsonProperty("type")
@@ -159,6 +164,26 @@ public class MultiMediaStream implements Comparable<MultiMediaStream> {
 
 	public MultiMediaStream withCodecs(List<String> codecs) {
 		this.codecs = codecs;
+		return this;
+	}
+
+	public MultiMediaStream withAddCodec(String codec) {
+		this.codecs.add(codec);
+		return this;
+	}
+
+	@JsonProperty("fileContainer")
+	public String getFileContainer() {
+		return fileContainer;
+	}
+
+	@JsonProperty("fileContainer")
+	public void setFileContainer(String fileContainer) {
+		this.fileContainer = fileContainer;
+	}
+
+	public MultiMediaStream withFileContainer(String fileContainer) {
+		this.fileContainer = fileContainer;
 		return this;
 	}
 

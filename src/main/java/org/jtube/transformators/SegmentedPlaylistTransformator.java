@@ -11,6 +11,8 @@ import org.jtube.data.youtube.QualityLabel;
 import org.jtube.utils.net.UrlUtils;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -35,18 +37,24 @@ public class SegmentedPlaylistTransformator implements Transformator {
 		SegmentedPlaylistSourceData segmentedPlaylistSourceData = (SegmentedPlaylistSourceData) sourceData;
 		URL streamsBaseUrl = segmentedPlaylistSourceData.getUriMasterPlaylistMap().keySet().stream().findFirst().orElse(null);
 		return new ProductData()
-				.withTitle(urlUtils.urlToTitle(Objects.requireNonNull(streamsBaseUrl)).replaceFirst("[_]?\\d*$", ""))
+				.withTitle(urlUtils.masterPlaylistUrlToTitle(Objects.requireNonNull(streamsBaseUrl)).replaceFirst("[_]?\\d*$", ""))
 				.withSource(Source.SEGMENTED_PLAYLIST)
 				.withMultiMediaStreams(
 						Objects.requireNonNull(segmentedPlaylistSourceData.getUriMasterPlaylistMap().values().stream().findFirst().orElse(null)).variants().stream()
 								.map((variant) -> {
 									URL streamBaseUrl = urlUtils.enrichUrl(streamsBaseUrl, variant.uri());
+									String m3u8Uri = segmentedPlaylistSourceData.getUriMediaPlaylistMap().get(streamBaseUrl).mediaSegments().get(0).uri();
+									List<String> resultCodecs = new ArrayList<>();
+									if(m3u8Uri.contains(".ts")) {
+										resultCodecs.add("mpeg-ts");
+									}
 									return new MultiMediaStream()
 											.withType(MultimediaFormatType.AUDIO_VIDEO)
 											.withResolution(QualityLabel.valueOf("" + (int)(Objects.requireNonNull(variant.resolution().orElse(null)).width()/1.777777777777777)))
 											.withBitRate(variant.bandwidth())
 											.withFrameRate(variant.frameRate().map(Double::longValue).orElse(null))
-											.withCodecs(variant.codecs())
+											.withCodecs(variant.codecs().isEmpty() && m3u8Uri.contains(".ts") ? resultCodecs : variant.codecs())
+											.withFileContainer(m3u8Uri.replaceFirst("^.+\\.", ""))
 											.withUrls(
 													segmentedPlaylistSourceData.getUriMediaPlaylistMap().get(streamBaseUrl).mediaSegments().stream()
 															.map(MediaSegment::uri).map(uri -> urlUtils.enrichUrl(streamBaseUrl, "/" + uri)

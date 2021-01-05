@@ -12,9 +12,24 @@
       <option name="url" value="https://repo.maven.apache.org/maven2" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="xuggle repo" />
+      <option name="name" value="xuggle repo" />
+      <option name="url" value="https://files.liferay.com/mirrors/xuggle.googlecode.com/svn/trunk/repo/share/java/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="xuggle repo" />
+      <option name="name" value="xuggle repo" />
+      <option name="url" value="http://www.dcm4che.org/maven2/" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="rp-bintray" />
       <option name="name" value="rp-bintray" />
       <option name="url" value="http://dl.bintray.com/epam/reportportal/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="dcm4che repository" />
+      <option name="name" value="dcm4che repository" />
+      <option name="url" value="http://www.dcm4che.org/maven2/" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="central" />
@@ -25,6 +40,11 @@
       <option name="id" value="jboss.community" />
       <option name="name" value="JBoss Community repository" />
       <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="xuggle repo" />
+      <option name="name" value="xuggle repo" />
+      <option name="url" value="http://xuggle.googlecode.com/svn/trunk/repo/share/java/" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="jcenter" />

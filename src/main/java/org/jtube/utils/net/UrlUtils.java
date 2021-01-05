@@ -20,9 +20,12 @@ public class UrlUtils {
 		return instance;
 	}
 
-	public String urlToTitle(URL url) {
-		return Arrays.stream(url.getFile().replace("/index.m3u8", "").replace("/hls", "").split("/"))
-				.reduce((s, s2) -> s2).orElse(null);
+	public String masterPlaylistUrlToTitle(URL url) {
+		return Arrays.stream(url.getFile()
+				.replace("/index.m3u8", "")
+				.replace("/hls", "")
+				.split("/"))
+				.reduce((s, s2) -> s2).orElse("unknownTitle");
 	}
 
 	public URL enrichUrl(URL masterPlaylistURL, String suffix) {
