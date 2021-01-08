@@ -20,24 +20,24 @@ class Main {
 
 	private static final Logger LOGGER = Logger.getLogger(Main.class);
 
-	private static ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+	private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
 	public static void main(String[] args) {
 		List<ProductData> productData = new ArrayList<>();
-		if(args == null || args.length == 0) {
+		if (args == null || args.length == 0) {
 			System.out.println("Usage: java Example https://www.youtube.com/watch?v=H9154xIoYTA https://ashdi.vip/vod/666 https://tortuga.wtf/vod/40376");
 		} else {
 			productData = Stream.of(args).parallel().map((arg) -> {
 				try {
 					return new Processor(arg);
-				} catch(MalformedURLException e) {
+				} catch (MalformedURLException e) {
 					LOGGER.error(e + " for " + arg + " url.");
 					return null;
 				}
 			}).filter(Objects::nonNull).peek(Thread::start).peek((processor) -> {
 				try {
 					synchronized(Thread.currentThread()) {
-						while(!processor.isFinished()) {
+						while (!processor.isFinished()) {
 							Thread.currentThread().wait(10);
 						}
 					}
@@ -47,10 +47,18 @@ class Main {
 			}).map(Processor::getProductData).collect(Collectors.toList());
 		}
 		downloadBestQuality(productData);
+		LOGGER.info("To append multiple subtitles and audio tracks use following script: "
+				+ "\"ffmpeg -i in_HD_UKR.ts -i in_SD_ENG.ts -i ENG.srt -i UKR.ass"
+				+ " -c:v copy -c:a copy -c:s copy -map 0:0 -map 1:1 -map 0:1 -map 2:0 -map 3:0"
+				+ " -metadata:s:a:0 title=\"English\" -metadata:s:a:1 title=\"Ukrainian\""
+				+ " -metadata:s:a:0 language=eng -metadata:s:a:1 language=ukr"
+				+ " -metadata:s:s:0 title=\"English\" -metadata:s:s:1 title=\"Ukrainian\""
+				+ " -metadata:s:s:0 language=eng -metadata:s:s:1 language=ukr out.mkv\"");
+
 	}
 
 	public static void downloadBestQuality(List<ProductData> productData) {
-		productData.stream().parallel().filter(productData1 -> productData1.getErrors().isEmpty()).forEach(
+		productData.stream().filter(productData1 -> productData1.getErrors().isEmpty()).forEach(
 				(productData1) -> {
 					List<MultiMediaStream> audioVideoStreams = productData1.getMultiMediaStreams(MultimediaFormatType.AUDIO_VIDEO);
 					List<MultiMediaStream> videoStreams = productData1.getMultiMediaStreams(MultimediaFormatType.VIDEO);
@@ -59,7 +67,7 @@ class Main {
 					Collections.sort(videoStreams);
 					Collections.sort(audioStreams);
 					try {
-						if(Source.YOUTUBE.equals(productData1.getSource())) {
+						if (Source.YOUTUBE.equals(productData1.getSource())) {
 							downloadBestQualityYouTube(!audioVideoStreams.isEmpty() ? audioVideoStreams.get(0) : null
 									, !videoStreams.isEmpty() ? videoStreams.get(0) : null
 									, !audioStreams.isEmpty() ? audioStreams.get(0) : null);

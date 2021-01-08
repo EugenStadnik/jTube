@@ -81,7 +81,23 @@ public class UrlLoader {
 				out.write(in.readAllBytes());
 				in.close();
 			} catch (IOException e) {
-				e.printStackTrace();
+				LOGGER.warn("Unable to process " + url + " url.");
+				LOGGER.warn("The reason is " + e + ". Second attempt...");
+				try {
+					in = url.openStream();
+					out.write(in.readAllBytes());
+					in.close();
+				} catch (IOException ioException) {
+					LOGGER.warn("Unable to process " + url + " url.");
+					LOGGER.warn("The reason is " + e + ". Third attempt...");
+					try {
+						in = url.openStream();
+						out.write(in.readAllBytes());
+						in.close();
+					} catch (IOException ioException2) {
+						ioException2.printStackTrace();
+					}
+				}
 			}
 		});
 		out.close();
