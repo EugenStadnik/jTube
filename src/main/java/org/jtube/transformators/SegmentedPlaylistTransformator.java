@@ -20,7 +20,7 @@ public class SegmentedPlaylistTransformator implements Transformator {
 
 	private static SegmentedPlaylistTransformator instance;
 
-	private UrlUtils urlUtils = UrlUtils.getInstance();
+	private final UrlUtils urlUtils = UrlUtils.getInstance();
 
 	private SegmentedPlaylistTransformator() {}
 
@@ -42,7 +42,7 @@ public class SegmentedPlaylistTransformator implements Transformator {
 				.withMultiMediaStreams(
 						Objects.requireNonNull(segmentedPlaylistSourceData.getUriMasterPlaylistMap().values().stream().findFirst().orElse(null)).variants().stream()
 								.map((variant) -> {
-									URL streamBaseUrl = urlUtils.enrichUrl(streamsBaseUrl, variant.uri());
+									URL streamBaseUrl = urlUtils.enrichUrl(streamsBaseUrl, variant.uri(), true);
 									String m3u8Uri = segmentedPlaylistSourceData.getUriMediaPlaylistMap().get(streamBaseUrl).mediaSegments().get(0).uri();
 									List<String> resultCodecs = new ArrayList<>();
 									if(m3u8Uri.contains(".ts")) {
@@ -57,7 +57,7 @@ public class SegmentedPlaylistTransformator implements Transformator {
 											.withFileContainer(m3u8Uri.replaceFirst("^.+\\.", ""))
 											.withUrls(
 													segmentedPlaylistSourceData.getUriMediaPlaylistMap().get(streamBaseUrl).mediaSegments().stream()
-															.map(MediaSegment::uri).map(uri -> urlUtils.enrichUrl(streamBaseUrl, "/" + uri)
+															.map(MediaSegment::uri).map(uri -> urlUtils.enrichUrl(streamBaseUrl, "/" + uri, true)
 													).collect(Collectors.toList())
 											);
 										}

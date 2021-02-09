@@ -23,7 +23,7 @@ public class SegmentedPlaylistSourceDataMapper implements SourceDataMapper {
 	private static MediaPlaylistParser mediaPlaylistParser;
 	private static final UrlLoader URL_LOADER = UrlLoader.getInstance();
 
-	private UrlUtils urlUtils = UrlUtils.getInstance();
+	private final UrlUtils urlUtils = UrlUtils.getInstance();
 
 	private SegmentedPlaylistSourceDataMapper() {}
 
@@ -50,7 +50,7 @@ public class SegmentedPlaylistSourceDataMapper implements SourceDataMapper {
 		Map<URL, MediaPlaylist> uriMediaPlaylistMap = result.getUriMediaPlaylistMap();
 		masterPlaylist.variants().forEach(variant -> {
 			try {
-				URL mediaPlaylistURL = urlUtils.enrichUrl(masterPlaylistURL, variant.uri());
+				URL mediaPlaylistURL = urlUtils.enrichUrl(masterPlaylistURL, variant.uri(), true);
 				uriMediaPlaylistMap.put(mediaPlaylistURL
 						, mediaPlaylistParser.readPlaylist(URL_LOADER.download(mediaPlaylistURL)));
 

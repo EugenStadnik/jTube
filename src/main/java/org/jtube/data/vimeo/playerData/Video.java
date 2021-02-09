@@ -64,7 +64,7 @@ public class Video {
     @JsonProperty("fps")
     private double fps;
     @JsonProperty("spatial")
-    private int spatial;
+    private Object spatial;
     @JsonProperty("allow_hd")
     private int allowHd;
     @JsonProperty("hd")
@@ -84,7 +84,7 @@ public class Video {
     public Video() {
     }
 
-    public Video(Rating rating, Version version, int height, int duration, Thumbs thumbs, Owner owner, int id, String embedCode, String title, URL shareUrl, int width, String embedPermission, double fps, int spatial, int allowHd, int hd, int defaultToHd, URL url, String privacy, String bypassToken) {
+    public Video(Rating rating, Version version, int height, int duration, Thumbs thumbs, Owner owner, int id, String embedCode, String title, URL shareUrl, int width, String embedPermission, double fps, Object spatial, int allowHd, int hd, int defaultToHd, URL url, String privacy, String bypassToken) {
         super();
         this.rating = rating;
         this.version = version;
@@ -304,16 +304,16 @@ public class Video {
     }
 
     @JsonProperty("spatial")
-    public int getSpatial() {
+    public Object getSpatial() {
         return spatial;
     }
 
     @JsonProperty("spatial")
-    public void setSpatial(int spatial) {
+    public void setSpatial(Object spatial) {
         this.spatial = spatial;
     }
 
-    public Video withSpatial(int spatial) {
+    public Video withSpatial(Object spatial) {
         this.spatial = spatial;
         return this;
     }

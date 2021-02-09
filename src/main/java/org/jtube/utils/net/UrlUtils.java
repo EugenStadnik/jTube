@@ -1,8 +1,10 @@
 package org.jtube.utils.net;
 
 import org.apache.log4j.Logger;
+
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
@@ -28,10 +30,19 @@ public class UrlUtils {
 				.reduce((s, s2) -> s2).orElse("unknownTitle");
 	}
 
-	public URL enrichUrl(URL masterPlaylistURL, String suffix) {
+	public URL enrichUrl(URL masterPlaylistURL, String suffix, boolean isFile) {
 		try {
+			Path urlPath;
+			if(isFile) {
+				urlPath = Paths.get(masterPlaylistURL.getPath()).getParent();
+			} else {
+				urlPath = Paths.get(masterPlaylistURL.getPath());
+			}
+			Path enrichedPath = Paths.get(
+					urlPath.toString()
+					, suffix).normalize();
 			return new URL(masterPlaylistURL.getProtocol(), masterPlaylistURL.getHost(), masterPlaylistURL.getPort()
-					, Paths.get(masterPlaylistURL.getFile()).getParent().toString() + suffix.replaceFirst("^[.]", ""));
+					, enrichedPath.toString());
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}

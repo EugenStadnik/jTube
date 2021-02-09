@@ -1,10 +1,11 @@
 package org.jtube;
 
-import org.jtube.data.result.ProductData;
 import org.apache.log4j.Logger;
 import org.jsoup.nodes.Document;
+import org.jtube.data.result.ProductData;
 import org.jtube.handlers.Handler;
 import org.jtube.handlers.SegmentedPlaylistHandler;
+import org.jtube.handlers.VimeoHandler;
 import org.jtube.handlers.YouTubeHandler;
 import org.jtube.utils.net.UrlLoader;
 
@@ -20,7 +21,7 @@ public class Processor extends Thread {
 	private static final Logger LOGGER = Logger.getLogger(Processor.class);
 	private final URL url;
 	private final Stream<Handler> handlersStream = Stream.of(YouTubeHandler.getInstance()
-			, SegmentedPlaylistHandler.getInstance());
+			, SegmentedPlaylistHandler.getInstance(), VimeoHandler.getInstance());
 	private ProductData productData;
 	private boolean finished = false;
 

@@ -1,7 +1,6 @@
 import org.apache.log4j.Logger;
 import org.jtube.Processor;
 import org.jtube.data.MultimediaFormatType;
-import org.jtube.data.Source;
 import org.jtube.data.result.MultiMediaStream;
 import org.jtube.data.result.ProductData;
 import org.jtube.utils.Constants;
@@ -9,6 +8,7 @@ import org.jtube.utils.media.YouTubeMerger;
 import org.jtube.utils.net.UrlLoader;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -22,10 +22,11 @@ class Main {
 
 	private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		List<ProductData> productData = new ArrayList<>();
 		if (args == null || args.length == 0) {
-			System.out.println("Usage: java Example https://www.youtube.com/watch?v=H9154xIoYTA https://ashdi.vip/vod/666 https://tortuga.wtf/vod/40376");
+			System.out.println("Usage: java -jar jTube https://www.youtube.com/watch?v=H9154xIoYTA"
+					+ " https://ashdi.vip/vod/666 https://tortuga.wtf/vod/40376 https://vimeo.com/497879805");
 		} else {
 			productData = Stream.of(args).parallel().map((arg) -> {
 				try {
@@ -44,8 +45,11 @@ class Main {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-			}).map(Processor::getProductData).collect(Collectors.toList());
+			}).map(Processor::getProductData)
+					//.peek(productData1 -> productData1.getMultiMediaStreams().stream().forEach(multiMediaStream -> LOGGER.debug(multiMediaStream.getUrls())))
+					.collect(Collectors.toList());
 		}
+		//LOGGER.debug(productData);
 		downloadBestQuality(productData);
 		LOGGER.info("To append multiple subtitles and audio tracks use following script: "
 				+ "\"ffmpeg -i in_HD_UKR.ts -i in_SD_ENG.ts -i ENG.srt -i UKR.ass"
@@ -54,7 +58,6 @@ class Main {
 				+ " -metadata:s:a:0 language=eng -metadata:s:a:1 language=ukr"
 				+ " -metadata:s:s:0 title=\"English\" -metadata:s:s:1 title=\"Ukrainian\""
 				+ " -metadata:s:s:0 language=eng -metadata:s:s:1 language=ukr out.mkv\"");
-
 	}
 
 	public static void downloadBestQuality(List<ProductData> productData) {
@@ -67,12 +70,15 @@ class Main {
 					Collections.sort(videoStreams);
 					Collections.sort(audioStreams);
 					try {
-						if (Source.YOUTUBE.equals(productData1.getSource())) {
-							downloadBestQualityYouTube(!audioVideoStreams.isEmpty() ? audioVideoStreams.get(0) : null
-									, !videoStreams.isEmpty() ? videoStreams.get(0) : null
-									, !audioStreams.isEmpty() ? audioStreams.get(0) : null);
-						} else if(Source.SEGMENTED_PLAYLIST.equals(productData1.getSource())) {
-							UrlLoader.getInstance().downloadToFile(audioVideoStreams.get(0).getUrls()
+						if (!videoStreams.isEmpty() && !audioStreams.isEmpty()) {
+							downloadBestAvailableQuality(!audioVideoStreams.isEmpty() ? audioVideoStreams.get(0) : null
+									, videoStreams.get(0)
+									, audioStreams.get(0));
+						} else if(!audioVideoStreams.isEmpty()) {
+							LOGGER.info("Downloading combined audio/video stream for "
+									+ productData1.getCanonicalUrl() + " i.e. \"" + productData1.getTitle()
+									+ "\" video as only available...");
+							UrlLoader.getInstance().downloadToFile(audioVideoStreams.get(0)
 									, new File(Constants.DOWNLOADED + audioVideoStreams.get(0).parentProductData().getTitle()
 											+ "." + audioVideoStreams.get(0).getFileContainer()));
 						}
@@ -83,7 +89,7 @@ class Main {
 		);
 	}
 
-	public static void downloadBestQualityYouTube(MultiMediaStream bestAudioVideoStream
+	public static void downloadBestAvailableQuality(MultiMediaStream bestAudioVideoStream
 			, MultiMediaStream bestVideoStream
 			, MultiMediaStream bestAudioStream) {
 		long audioVideoBitrate = Optional.ofNullable(bestAudioVideoStream).map(MultiMediaStream::getBitRate).orElse(0L);
@@ -92,17 +98,23 @@ class Main {
 		try {
 			if(audioVideoBitrate >= videoBitrate + audioBitrate) {
 				assert bestAudioVideoStream != null;
-				UrlLoader.getInstance().downloadToFile(bestAudioVideoStream.getUrls()
+				LOGGER.info("Downloading combined audio/video stream for "
+						+ bestAudioVideoStream.parentProductData().getCanonicalUrl() + " i.e. \"" + bestAudioVideoStream.parentProductData().getTitle()
+						+ "\" video as better quality of " + bestAudioVideoStream.getResolution() + " and " + bestAudioVideoStream.getBitRate() + "bps ...");
+				UrlLoader.getInstance().downloadToFile(bestAudioVideoStream
 						, new File(Constants.DOWNLOADED + bestAudioVideoStream.parentProductData().getTitle()
 								+ "." + bestAudioVideoStream.getFileContainer()));
 			} else {
 				assert bestVideoStream != null;
-				File temporaryVideoFile = UrlLoader.getInstance().downloadToFile(bestVideoStream.getUrls()
+				assert bestAudioStream != null;
+				LOGGER.info("Downloading separate audio and video streams for "
+						+ bestVideoStream.parentProductData().getCanonicalUrl() + " i.e. \"" + bestVideoStream.parentProductData().getTitle()
+						+ "\" video as better quality of " + bestVideoStream.getResolution() + " and " + bestAudioStream.getBitRate() + "bps ...");
+				File temporaryVideoFile = UrlLoader.getInstance().downloadToFile(bestVideoStream
 						, new File(Constants.TMP + bestVideoStream.parentProductData().getTitle()
 								+ bestVideoStream.getType()
 								+ "." + bestVideoStream.getFileContainer()));
-				assert bestAudioStream != null;
-				File temporaryAudioFile = UrlLoader.getInstance().downloadToFile(bestAudioStream.getUrls()
+				File temporaryAudioFile = UrlLoader.getInstance().downloadToFile(bestAudioStream
 						, new File(Constants.TMP + bestAudioStream.parentProductData().getTitle()
 								+ bestAudioStream.getType()
 								+ "." + bestAudioStream.getFileContainer()));

@@ -1,10 +1,12 @@
 package org.jtube.data;
 
 public enum Source {
-	YOUTUBE, SEGMENTED_PLAYLIST
-	// SEGMENTED_PLAYLIST - ashdi.vip; tortuga.wtf
-	// Vimeo Dailymotion Smotri Corbina.tv Music.ivi Ruhd.ru RuTube Vzaar Metacafe Видео@Mail.Ru Яндекс.Видео Myvi.ru
-	// Toxicbun Vimple Facebook
+	YOUTUBE
+	, SEGMENTED_PLAYLIST	//	ashdi.vip; tortuga.wtf
+	, VIMEO
+	// Dailymotion Smotri Corbina.tv Music.ivi Vzaar Metacafe
+	// Facebook Twitter TicTok
+	// Toxicbun Vimple
 	// WordPress Video Hosting: Jetpack
 	// Wistia
 	// vooPlayer

@@ -124,6 +124,15 @@ public class Playlists {
         return this;
     }
 
+    public Playlist defaultCdnObject() {
+        switch (defaultCdn) {
+            case "fastlynlc_skyfire": return cdns.getFastlynlcSkyfire();
+            case "fastly_skyfire": return cdns.getFastlySkyfire();
+            case "akfire_interconnect_quic": return cdns.getAkfireInterconnectQuic();
+            default: return null;
+        }
+    }
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;

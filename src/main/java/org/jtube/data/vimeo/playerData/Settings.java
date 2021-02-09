@@ -68,7 +68,7 @@ public class Settings {
     @JsonProperty("embed")
     private int embed;
     @JsonProperty("badge")
-    private int badge;
+    private Object badge;
     @JsonProperty("spatial_label")
     private int spatialLabel;
     @JsonProperty("volume")
@@ -80,7 +80,7 @@ public class Settings {
     public Settings() {
     }
 
-    public Settings(int fullscreen, int byline, int like, int playbar, int title, int color, int speed, int watchLater, int share, int scaling, int spatialCompass, int collections, int infoOnPause, int portrait, int logo, int embed, int badge, int spatialLabel, int volume) {
+    public Settings(int fullscreen, int byline, int like, int playbar, int title, int color, int speed, int watchLater, int share, int scaling, int spatialCompass, int collections, int infoOnPause, int portrait, int logo, int embed, Object badge, int spatialLabel, int volume) {
         super();
         this.fullscreen = fullscreen;
         this.byline = byline;
@@ -344,16 +344,16 @@ public class Settings {
     }
 
     @JsonProperty("badge")
-    public int getBadge() {
+    public Object getBadge() {
         return badge;
     }
 
     @JsonProperty("badge")
-    public void setBadge(int badge) {
+    public void setBadge(Object badge) {
         this.badge = badge;
     }
 
-    public Settings withBadge(int badge) {
+    public Settings withBadge(Object badge) {
         this.badge = badge;
         return this;
     }

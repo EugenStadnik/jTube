@@ -29,7 +29,7 @@ public class PlayerData {
     @JsonProperty("cdn_url")
     private URL cdnUrl;
     @JsonProperty("vimeo_api_url")
-    private URL vimeoApiUrl;
+    private String vimeoApiUrl;
     @JsonProperty("request")
     private Request request;
     @JsonProperty("player_url")
@@ -51,7 +51,7 @@ public class PlayerData {
     public PlayerData() {
     }
 
-    public PlayerData(URL cdnUrl, URL vimeoApiUrl, Request request, String playerUrl, Video video, User user, Embed embed, int view, String vimeoUrl) {
+    public PlayerData(URL cdnUrl, String vimeoApiUrl, Request request, String playerUrl, Video video, User user, Embed embed, int view, String vimeoUrl) {
         super();
         this.cdnUrl = cdnUrl;
         this.vimeoApiUrl = vimeoApiUrl;
@@ -80,16 +80,16 @@ public class PlayerData {
     }
 
     @JsonProperty("vimeo_api_url")
-    public URL getVimeoApiUrl() {
+    public String getVimeoApiUrl() {
         return vimeoApiUrl;
     }
 
     @JsonProperty("vimeo_api_url")
-    public void setVimeoApiUrl(URL vimeoApiUrl) {
+    public void setVimeoApiUrl(String vimeoApiUrl) {
         this.vimeoApiUrl = vimeoApiUrl;
     }
 
-    public PlayerData withVimeoApiUrl(URL vimeoApiUrl) {
+    public PlayerData withVimeoApiUrl(String vimeoApiUrl) {
         this.vimeoApiUrl = vimeoApiUrl;
         return this;
     }

@@ -33,6 +33,7 @@ public class YouTubeSourceDataMapper implements SourceDataMapper {
 					+ youTubeSourceData.getVideoDetails().getTitle() + "\" video are parsed successfully.");
 		} else {
 			LOGGER.warn("The media locations of current url are not parsed.");
+			return null;
 		}
 		return youTubeSourceData;
 	}

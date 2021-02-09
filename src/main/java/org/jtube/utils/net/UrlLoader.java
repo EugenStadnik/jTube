@@ -10,11 +10,9 @@ import java.io.*;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Base64;
 import java.util.List;
-import java.util.Objects;
 import java.util.Scanner;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class UrlLoader {
 
@@ -71,8 +69,12 @@ public class UrlLoader {
 		return downloadingFile;
 	}
 
-	public File downloadToFile(List<URL> urls, File downloadingFile) throws IOException {
+	public File downloadToFile(String initSegmentBase64, List<URL> urls, File downloadingFile) throws IOException {
 		DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(downloadingFile)));
+		if(initSegmentBase64 != null && !initSegmentBase64.isEmpty() && !initSegmentBase64.isBlank()) {
+			byte[] unbased = Base64.getDecoder().decode(initSegmentBase64);
+			out.write(unbased);
+		}
 		urls.forEach((url) -> {
 			LOGGER.info("Processing " + url + " url...");
 			InputStream in;
@@ -110,23 +112,13 @@ public class UrlLoader {
 	}
 
 	public File downloadToTempFile(MultiMediaStream multiMediaStream) throws IOException {
-		return downloadToFile(multiMediaStream.getUrls()
+		return downloadToFile(multiMediaStream.getInitSegmentBase64(), multiMediaStream.getUrls()
 				, new File(Constants.TMP + multiMediaStream.parentProductData().getTitle()
 						+ "." + multiMediaStream.getFileContainer()));
 	}
 
-	public List<File> downloadToFiles(MultiMediaStream multiMediaStream, String title, String path) {
-		return Stream.iterate(0, n -> n + 1).limit(multiMediaStream.getUrls().size()).map((index) -> {
-			URL url = multiMediaStream.getUrls().get(index);
-			try {
-				File file = new File(path + title + "_"
-						+ multiMediaStream.getType().toString().toLowerCase() + "_segment_" + (index + 1) + ".dat");
-				return downloadToFile(url, file);
-			} catch (IOException e) {
-				e.printStackTrace();
-				return null;
-			}
-		}).filter(Objects::nonNull).collect(Collectors.toList());
+	public File downloadToFile(MultiMediaStream multiMediaStream, File file) throws IOException {
+		return downloadToFile(multiMediaStream.getInitSegmentBase64(), multiMediaStream.getUrls(), file);
 	}
 
 }

@@ -5,6 +5,7 @@ import org.jtube.data.SourceData;
 import org.jtube.data.result.MultiMediaStream;
 import org.jtube.data.result.ProductData;
 import org.jtube.data.youtube.YouTubeSourceData;
+import org.jtube.utils.Util;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ public class YouTubeTransformator implements Transformator {
 		if(sourceData == null) {return null;}
 		YouTubeSourceData youTubeSourceData = (YouTubeSourceData) sourceData;
 		return new ProductData()
-				.withTitle(youTubeSourceData.getVideoDetails().getNormalizedTitle())
+				.withTitle(Util.normalizeTitle(youTubeSourceData.getVideoDetails().getTitle()))
 				.withSource(Source.YOUTUBE)
 				.withMultiMediaStreams(
 						youTubeSourceData.getStreamingData().getAllFormats().stream()

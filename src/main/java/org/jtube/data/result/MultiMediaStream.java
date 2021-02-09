@@ -1,9 +1,5 @@
 package org.jtube.data.result;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,6 +9,10 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.json.JSONObject;
 import org.jtube.data.MultimediaFormatType;
 import org.jtube.data.youtube.QualityLabel;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -43,6 +43,8 @@ public class MultiMediaStream implements Comparable<MultiMediaStream> {
 	private List<String> codecs = new ArrayList<>();
 	@JsonProperty("fileContainer")
 	private String fileContainer;
+	@JsonProperty("initSegmentBase64")
+	private String initSegmentBase64;
 	@JsonIgnore
 	private ProductData parentProductData;
 
@@ -171,7 +173,9 @@ public class MultiMediaStream implements Comparable<MultiMediaStream> {
 	}
 
 	public MultiMediaStream withAddCodec(String codec) {
-		this.codecs.add(codec);
+		if(codec != null && !codec.isEmpty() && !codec.isBlank()) {
+			this.codecs.add(codec);
+		}
 		return this;
 	}
 
@@ -187,6 +191,21 @@ public class MultiMediaStream implements Comparable<MultiMediaStream> {
 
 	public MultiMediaStream withFileContainer(String fileContainer) {
 		this.fileContainer = fileContainer;
+		return this;
+	}
+
+	@JsonProperty("initSegmentBase64")
+	public String getInitSegmentBase64() {
+		return initSegmentBase64;
+	}
+
+	@JsonProperty("initSegmentBase64")
+	public void setInitSegmentBase64(String initSegmentBase64) {
+		this.initSegmentBase64 = initSegmentBase64;
+	}
+
+	public MultiMediaStream withInitSegmentBase64(String initSegmentBase64) {
+		this.initSegmentBase64 = initSegmentBase64;
 		return this;
 	}
 
