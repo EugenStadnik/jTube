@@ -4,9 +4,12 @@ import org.apache.log4j.Logger;
 import org.jsoup.nodes.Document;
 import org.jtube.data.result.ProductData;
 import org.jtube.handlers.Handler;
-import org.jtube.handlers.SegmentedPlaylistHandler;
 import org.jtube.handlers.VimeoHandler;
 import org.jtube.handlers.YouTubeHandler;
+import org.jtube.handlers.segmentedPlaylist.EneyidaHandler;
+import org.jtube.handlers.segmentedPlaylist.Kino4uaHandler;
+import org.jtube.handlers.segmentedPlaylist.KinoTronHandler;
+import org.jtube.handlers.segmentedPlaylist.SegmentedPlaylistHandler;
 import org.jtube.utils.net.UrlLoader;
 
 import java.io.IOException;
@@ -20,8 +23,9 @@ public class Processor extends Thread {
 
 	private static final Logger LOGGER = Logger.getLogger(Processor.class);
 	private final URL url;
-	private final Stream<Handler> handlersStream = Stream.of(YouTubeHandler.getInstance()
-			, SegmentedPlaylistHandler.getInstance(), VimeoHandler.getInstance());
+	private final Stream<Handler> handlersStream = Stream.of(YouTubeHandler.getInstance(), VimeoHandler.getInstance()
+			, EneyidaHandler.getInstance(), KinoTronHandler.getInstance(), Kino4uaHandler.getInstance()
+			, SegmentedPlaylistHandler.getInstance());
 	private ProductData productData;
 	private boolean finished = false;
 

@@ -1,10 +1,11 @@
-package org.jtube.handlers;
+package org.jtube.handlers.segmentedPlaylist;
 
 import org.jsoup.nodes.Document;
 import org.jtube.data.objectMappers.SegmentedPlaylistSourceDataMapper;
 import org.jtube.data.result.ProductData;
-import org.jtube.transformators.SegmentedPlaylistTransformator;
 import org.jtube.filters.SegmentedPlaylistSourceDataFilter;
+import org.jtube.handlers.Handler;
+import org.jtube.transformators.SegmentedPlaylistTransformator;
 
 import java.io.IOException;
 

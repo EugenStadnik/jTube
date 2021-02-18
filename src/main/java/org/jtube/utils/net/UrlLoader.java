@@ -78,27 +78,17 @@ public class UrlLoader {
 		urls.forEach((url) -> {
 			LOGGER.info("Processing " + url + " url...");
 			InputStream in;
-			try {
-				in = url.openStream();
-				out.write(in.readAllBytes());
-				in.close();
-			} catch (IOException e) {
-				LOGGER.warn("Unable to process " + url + " url.");
-				LOGGER.warn("The reason is " + e + ". Second attempt...");
+			boolean downloaded = false;
+			int attempt = 1;
+			while(!downloaded) {
 				try {
 					in = url.openStream();
 					out.write(in.readAllBytes());
 					in.close();
-				} catch (IOException ioException) {
+					downloaded = true;
+				} catch (IOException e) {
 					LOGGER.warn("Unable to process " + url + " url.");
-					LOGGER.warn("The reason is " + e + ". Third attempt...");
-					try {
-						in = url.openStream();
-						out.write(in.readAllBytes());
-						in.close();
-					} catch (IOException ioException2) {
-						ioException2.printStackTrace();
-					}
+					LOGGER.warn("The reason is " + e + ". Attempt " + ++attempt + "...");
 				}
 			}
 		});

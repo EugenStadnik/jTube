@@ -1,6 +1,8 @@
 # jTube
 This is implementation of youTube(tm) video downloader engine implemented using Java(tm)
 
+Currentlly this engine handles youtube, vimeo, eneyida, kino4ua, kinogo-net video sources. More sources will be available soon
+
 ATTENTION: the ffmpeg need to be installed and/or it's binary added to $PATH environment variable.
 
 To compile project - run "mvn clean compile"

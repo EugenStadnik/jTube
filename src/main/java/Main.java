@@ -49,8 +49,8 @@ class Main {
 					//.peek(productData1 -> productData1.getMultiMediaStreams().stream().forEach(multiMediaStream -> LOGGER.debug(multiMediaStream.getUrls())))
 					.collect(Collectors.toList());
 		}
-		//LOGGER.debug(productData);
-		downloadBestQuality(productData);
+		LOGGER.debug(productData);
+		//downloadBestQuality(productData);
 		LOGGER.info("To append multiple subtitles and audio tracks use following script: "
 				+ "\"ffmpeg -i in_HD_UKR.ts -i in_SD_ENG.ts -i ENG.srt -i UKR.ass"
 				+ " -c:v copy -c:a copy -c:s copy -map 0:0 -map 1:1 -map 0:1 -map 2:0 -map 3:0"
